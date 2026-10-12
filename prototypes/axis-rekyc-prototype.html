@@ -1,0 +1,569 @@
+<title>Axis Re-KYC Prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Figtree:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a workbench — scenario controls + customer handset | the app phone | network log. Stacks to one column on phones (app first). */
+:root{
+  --bg:#f3f4f8; --surface:#ffffff; --fg:#1b1e2b; --muted:#5a6078; --line:#dde1ea; --chip:#eceff7;
+  --accent:#293897; --ok:#0a8a4b; --warn:#a86200; --err:#c4362b;
+  --code-bg:#f6f7fb;
+  --display:"Figtree",ui-sans-serif,system-ui,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  /* app interior (the real app is light-only) */
+  --a-bg:#ffffff; --a-fg:#181b25; --a-muted:#4b5174; --a-blue:#293897; --a-green:#009a51; --a-line:#e3e6ef; --a-soft:#f3f5fb; --a-red:#d93a2f;
+  --a-font:"Roboto",system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#11131a; --surface:#1a1d28; --fg:#e7e9f2; --muted:#a1a7bf; --line:#2b2f3f; --chip:#242939;
+  --accent:#9ba7ff; --ok:#3fcf8b; --warn:#f0b04a; --err:#ff7b6f; --code-bg:#141720; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#11131a; --surface:#1a1d28; --fg:#e7e9f2; --muted:#a1a7bf; --line:#2b2f3f; --chip:#242939;
+  --accent:#9ba7ff; --ok:#3fcf8b; --warn:#f0b04a; --err:#ff7b6f; --code-bg:#141720; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--display);font-size:14px;line-height:1.45}
+.wrap{max-width:1380px;margin:0 auto;padding-inline:18px;padding-block:20px 40px}
+.top{display:flex;flex-wrap:wrap;align-items:end;gap:12px 24px;margin-bottom:18px}
+.top h1{font:700 26px/1.1 var(--display);margin:0}
+.top p{margin:4px 0 0;color:var(--muted);max-width:70ch}
+.top .meta{margin-left:auto;font:500 11px/1.4 var(--mono);color:var(--muted);text-align:right}
+.bench{display:grid;grid-template-columns:minmax(250px,300px) auto minmax(300px,1fr);gap:20px;align-items:start}
+@media (max-width:1060px){.bench{grid-template-columns:1fr 1fr}.col-phone{grid-column:1/-1;justify-self:center}}
+@media (max-width:700px){.bench{grid-template-columns:1fr}.col-phone{order:-1}}
+.col{display:grid;gap:14px;min-width:0}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px;display:grid;gap:10px;min-width:0}
+.panel h2{font:600 13px/1 var(--mono);letter-spacing:.05em;text-transform:uppercase;color:var(--muted);margin:0}
+.ctl{display:grid;gap:4px}
+.ctl label,.ctl .lbl{font-size:13px;font-weight:500}
+.ctl small{color:var(--muted);font-size:12px}
+select,input[type=text]{font:inherit;font-size:13px;background:var(--bg);color:var(--fg);border:1px solid var(--line);border-radius:8px;padding:6px 8px;width:100%}
+.sw{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.sw input{width:36px;height:20px;accent-color:var(--accent)}
+input[type=range]{width:100%;accent-color:var(--accent)}
+.pbtn{font:inherit;font-size:13px;font-weight:600;border-radius:8px;padding:8px 10px;border:1px solid var(--line);background:var(--chip);color:var(--fg);cursor:pointer}
+.pbtn:hover{border-color:var(--accent)}
+.pbtn:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.pbtn[disabled]{opacity:.45;cursor:not-allowed}
+.row2{display:flex;gap:8px;flex-wrap:wrap}
+
+/* customer handset */
+.sms{display:grid;gap:8px;max-height:260px;overflow:auto}
+.sms .m{background:var(--chip);border-radius:10px 10px 10px 2px;padding:8px 10px;font-size:12.5px;overflow-wrap:anywhere}
+.sms .m b{display:block;font-size:11px;color:var(--muted);font-weight:600;margin-bottom:2px}
+.sms .m .otpv{font:600 15px var(--mono);letter-spacing:.12em;color:var(--accent)}
+.sms .empty{color:var(--muted);font-size:12.5px}
+.note{font-size:12px;color:var(--muted)}
+
+/* step rail */
+.rail{display:flex;gap:4px;flex-wrap:wrap;justify-content:center;max-width:330px}
+.rail span{font:500 10.5px/1 var(--mono);padding:5px 7px;border-radius:999px;background:var(--chip);color:var(--muted)}
+.rail span.on{background:var(--accent);color:var(--surface)}
+
+/* phone */
+.col-phone{display:grid;gap:10px;justify-items:center}
+.phone{width:330px;max-width:100%;height:660px;background:#0c0e15;border-radius:38px;padding:10px;box-shadow:0 14px 36px rgba(15,20,40,.22)}
+.scr{position:relative;height:100%;background:var(--a-bg);border-radius:29px;overflow:hidden;font-family:var(--a-font);color:var(--a-fg);font-size:13px;line-height:1.4;display:flex;flex-direction:column}
+.sb{height:24px;display:flex;justify-content:space-between;align-items:end;padding:0 20px;font-size:11px;color:var(--a-muted);flex:none}
+.tb{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--a-line);font-weight:500;font-size:15px;flex:none}
+.ib{background:none;border:0;padding:4px;cursor:pointer;color:var(--a-fg);font:inherit;display:grid;place-items:center;border-radius:6px}
+.chev{width:10px;height:10px;border-left:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(45deg);margin-left:4px}
+.dots{margin-left:auto;font-weight:700;letter-spacing:1px;font-size:16px}
+.view{flex:1;min-height:0;overflow:auto;display:flex;flex-direction:column}
+.pad{padding:14px;display:flex;flex-direction:column;gap:12px;flex:1}
+.abtn{font-family:var(--a-font);font-size:14px;font-weight:500;border:0;border-radius:10px;padding:12px;cursor:pointer;width:100%}
+.abtn.p{background:var(--a-blue);color:#fff}
+.abtn.w{background:#fff;color:var(--a-blue)}
+.abtn.o{background:#fff;color:var(--a-blue);border:1px solid var(--a-blue)}
+.abtn[disabled]{opacity:.35;cursor:default}
+.lnk{background:none;border:0;padding:0;color:var(--a-blue);font:500 13px var(--a-font);cursor:pointer}
+.lnk[disabled]{color:var(--a-muted);cursor:default}
+.muted{color:var(--a-muted)}
+.center{text-align:center}
+
+/* home */
+.hello{padding:14px;background:linear-gradient(160deg,#2b3a99,#1d2876);color:#fff;display:grid;gap:4px}
+.hello small{opacity:.8}
+.bal{display:flex;justify-content:space-between;align-items:end;margin-top:6px}
+.bal b{font-size:20px}
+.sec{padding:14px 14px 4px;font-weight:500}
+.tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:0 14px 14px}
+.tile{border:1px solid var(--a-line);border-radius:12px;padding:10px 4px;display:grid;justify-items:center;gap:6px;font-size:11px;text-align:center;background:#fff;cursor:default;color:var(--a-fg);font-family:var(--a-font)}
+.tile i{width:30px;height:30px;border-radius:9px;background:var(--a-soft);display:grid;place-items:center;font-style:normal;font-weight:700;color:var(--a-blue);font-size:12px}
+.tile.live{cursor:pointer;border-color:var(--a-blue);box-shadow:0 0 0 3px rgba(41,56,151,.14)}
+.tile.dim{opacity:.55}
+
+/* intro */
+.web{margin:14px 14px 0;border-radius:12px;background:var(--a-soft);padding:14px;display:grid;gap:8px;font-size:12px;color:var(--a-muted)}
+.web h3{margin:0;color:var(--a-fg);font-size:15px}
+.web ul{margin:0;padding-left:18px;display:grid;gap:4px}
+.web .tag{font-size:10.5px;color:var(--a-blue);font-weight:500}
+.bpanel{margin-top:auto;background:var(--a-blue);color:#fff;border-radius:18px 18px 0 0;padding:14px;display:grid;gap:10px}
+.bpanel .t{font-weight:700;font-size:15px}
+.fld{background:#fff;border-radius:10px;padding:6px 10px;display:grid}
+.fld label{font-size:11px;color:var(--a-muted)}
+.fld input{border:0;outline:0;font:500 16px var(--a-font);color:var(--a-fg);padding:2px 0;background:transparent;letter-spacing:.04em;width:100%}
+
+/* otp */
+.otpbox{display:flex;gap:8px;justify-content:center}
+.otpbox input{width:38px;height:46px;border:1.5px solid #c7cce0;border-radius:8px;text-align:center;font:500 20px var(--a-font);color:var(--a-fg);background:#fff;padding:0}
+.otpbox input:focus{border-color:var(--a-blue);outline:none;box-shadow:0 0 0 3px rgba(41,56,151,.15)}
+
+/* overlays */
+.scrim{position:absolute;inset:0;background:rgba(14,17,28,.55);display:grid;place-items:center;padding:20px;z-index:5}
+.dlg{background:#fff;border-radius:16px;padding:20px 16px;display:grid;gap:12px;width:100%;text-align:center}
+.spin{width:52px;height:52px;border-radius:50%;border:5px solid #d9ddf0;border-top-color:var(--a-blue);margin:0 auto;animation:r 1s linear infinite}
+@keyframes r{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.spin{animation:none}}
+.tick{width:54px;height:54px;border-radius:50%;background:var(--a-green);display:grid;place-items:center;margin:0 auto}
+.tick::after{content:"";width:20px;height:11px;border-left:3px solid #fff;border-bottom:3px solid #fff;transform:rotate(-45deg) translate(1px,-2px)}
+.toast{position:absolute;left:14px;right:14px;bottom:20px;background:#262a37;color:#fff;border-radius:10px;padding:10px 12px;font-size:12.5px;z-index:8;box-shadow:0 6px 18px rgba(0,0,0,.25)}
+.loading{position:absolute;inset:0;background:rgba(255,255,255,.75);display:grid;place-items:center;z-index:4;font-size:13px;color:var(--a-muted)}
+.loading .spin{width:36px;height:36px;border-width:4px;margin-bottom:8px}
+
+/* success */
+.sh{background:var(--a-green);color:#fff;padding:18px 16px 20px;display:grid;gap:8px}
+.sh .tick{background:#fff;width:40px;height:40px;margin:0}
+.sh .tick::after{border-color:var(--a-green);width:14px;height:8px}
+.sh b{font-size:18px}
+.card{border:1px solid var(--a-line);border-radius:12px;padding:10px 12px;display:grid;gap:6px}
+.rowx{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.pill{font-size:11px;font-weight:500;padding:3px 8px;border-radius:999px;background:#fff3dd;color:#9a5c00}
+.pill.done{background:#e1f5ea;color:#007a40}
+.nsteps{display:grid;gap:7px;font-size:12px;color:var(--a-muted)}
+.nsteps b{color:var(--a-fg);font-weight:500}
+.earn{background:#eaf7f0;color:#00733c;border-radius:10px;padding:9px 11px;font-size:12px}
+.acts{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;padding:10px 8px 14px;border-top:1px solid var(--a-line);flex:none}
+.acts button{background:none;border:0;cursor:pointer;display:grid;justify-items:center;gap:4px;font:500 11px var(--a-font);color:var(--a-blue);padding:4px 0;border-radius:8px}
+.acts i{width:30px;height:30px;border-radius:50%;background:var(--a-soft);border:1px solid var(--a-line);display:grid;place-items:center;font-style:normal;font-size:13px}
+
+/* history */
+.search{border:1px solid var(--a-line);border-radius:10px;padding:9px 11px;font:13px var(--a-font);width:100%;color:var(--a-fg);background:#fff}
+.hist{display:grid;gap:8px}
+
+/* external browser */
+.ext{position:absolute;inset:0;background:#fff;z-index:6;display:flex;flex-direction:column}
+.urlbar{display:flex;gap:8px;align-items:center;padding:30px 12px 10px;background:#f1f3f4;font-size:11.5px;color:#444}
+.urlbar span{flex:1;background:#fff;border-radius:999px;padding:6px 10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ext .pad{color:var(--a-muted);font-size:12.5px}
+
+/* network log */
+.log{display:grid;gap:10px}
+.entry{border:1px solid var(--line);border-radius:10px;background:var(--surface);overflow:hidden;min-width:0}
+.entry summary{list-style:none;cursor:pointer;display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:center;padding:9px 11px}
+.entry summary::-webkit-details-marker{display:none}
+.meth{font:600 11px var(--mono);color:var(--accent)}
+.path{font:500 12.5px var(--mono);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.st{font:600 11px var(--mono);padding:3px 7px;border-radius:6px;background:var(--chip)}
+.st.ok{color:var(--ok)} .st.bad{color:var(--err)} .st.pend{color:var(--warn)}
+.why{grid-column:1/-1;font-size:12px;color:var(--muted)}
+.io{display:grid;gap:8px;padding:0 11px 11px}
+.io h4{margin:0;font:600 11px var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+pre{margin:0;background:var(--code-bg);border:1px solid var(--line);border-radius:8px;padding:9px;font:12px/1.5 var(--mono);overflow-x:auto;color:var(--fg)}
+.k{color:var(--accent)} .s{color:var(--ok)} .n{color:var(--warn)}
+.logempty{color:var(--muted);font-size:13px;padding:6px 2px}
+.legend{font-size:12px;color:var(--muted)}
+</style>
+
+<div class="wrap">
+  <div class="top">
+    <div>
+      <h1>Axis Savings A/c Re-KYC</h1>
+      <p>Clickable prototype of the adhikari journey, rebuilt from the Spice Money app's code (v6.6.62). Every backend call goes to an in-page mock server that uses the app's real endpoint paths and field names. Use the switches to force each branch.</p>
+    </div>
+    <div class="meta">base · axiscasa.spicemoney.com/axisCasa/<br>responses simulated · no real network calls</div>
+  </div>
+
+  <div class="bench">
+    <!-- controls -->
+    <div class="col">
+      <div class="panel">
+        <h2>Scenario</h2>
+        <div class="ctl">
+          <label for="flag">Server flag <code>axis_rekyc</code></label>
+          <select id="flag">
+            <option value="1|Y|">1|Y| (service on)</option>
+            <option value="1|N|Re-KYC is temporarily unavailable. Please try after some time.">1|N|… (service off)</option>
+          </select>
+          <small>Read when the tile is tapped</small>
+        </div>
+        <div class="sw"><label for="sendFail">Send OTP returns isSuccess=false</label><input type="checkbox" id="sendFail"></div>
+        <div class="ctl">
+          <label for="linkFail">Link generation after a correct OTP</label>
+          <select id="linkFail">
+            <option value="never">Succeeds</option>
+            <option value="once">Fails once, then succeeds</option>
+            <option value="always">Always fails</option>
+          </select>
+          <small>Failure opens the "Try Again!" dialog</small>
+        </div>
+        <div class="sw"><label for="netErr">Network / server error (HTTP 500)</label><input type="checkbox" id="netErr"></div>
+        <div class="ctl">
+          <label for="lat">Latency <span id="latv">900</span> ms</label>
+          <input type="range" id="lat" min="150" max="3000" step="50" value="900">
+        </div>
+        <div class="row2"><button class="pbtn" id="reset" type="button">Restart journey</button></div>
+      </div>
+
+      <div class="panel">
+        <h2>Customer's phone</h2>
+        <div class="sms" id="sms"><div class="empty">No messages yet. The OTP and the Re-KYC link SMS appear here.</div></div>
+        <button class="pbtn" id="complete" type="button" disabled>Customer completes Re-KYC</button>
+        <span class="note">Simulates the customer finishing on Axis's web page, which happens outside the app. History then shows Completed.</span>
+      </div>
+    </div>
+
+    <!-- phone -->
+    <div class="col-phone">
+      <div class="rail" id="rail" aria-label="Journey step">
+        <span data-s="home">00 Home</span><span data-s="intro">01 Intro</span><span data-s="otp">02 OTP</span><span data-s="proc">03 Processing</span><span data-s="success">04 Link sent</span><span data-s="history">05 History</span>
+      </div>
+      <div class="phone"><div class="scr" id="scr"></div></div>
+      <span class="legend">Tip: the OTP arrives on the customer's phone panel.</span>
+    </div>
+
+    <!-- network -->
+    <div class="col">
+      <div class="panel">
+        <h2>Network</h2>
+        <div class="log" id="log"><div class="logempty">API calls appear here as you use the app. Newest first.</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  const $ = (s, r = document) => r.querySelector(s);
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const cfg = () => ({ flag: $('#flag').value, sendFail: $('#sendFail').checked, linkFail: $('#linkFail').value, netErr: $('#netErr').checked, latency: +$('#lat').value });
+  $('#lat').addEventListener('input', e => $('#latv').textContent = e.target.value);
+
+  // ---------- mock server (mirrors ApiInterface + models) ----------
+  const db = {
+    history: [
+      { mobNumber: '9123456780', logDateTime: stamp(-2 * 864e5), updateTime: stamp(-1.8 * 864e5), status: 'SUCCESS', activationStatus: 'Completed' },
+      { mobNumber: '9988776655', logDateTime: stamp(-4 * 864e5), updateTime: stamp(-4 * 864e5), status: 'PENDING', activationStatus: 'Pending' },
+    ],
+    otps: {}, linkFailUsed: false,
+  };
+  function stamp(offset = 0) {
+    const d = new Date(Date.now() + offset);
+    return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) + ' • ' + d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+  }
+  const rid = (p, n = 8) => p + Math.random().toString(36).slice(2, 2 + n).toUpperCase();
+
+  const routes = {
+    'axisbank/generate-otp-internal'(req, c) {
+      if (c.sendFail) return { isSuccess: 'false', otpMessage: 'OTP could not be sent to this mobile number. Please check the number and try again.', respMessage: 'OTP_SEND_FAILED', otpId: '', aplRefId: '', appId: '', otpTime: '' };
+      const otp = String(Math.floor(100000 + Math.random() * 900000));
+      const otpId = rid('OTP'), aplRefId = req.aplRefId || rid('APL', 10), appId = req.appId || rid('APP', 6);
+      db.otps[otpId] = { otp, mobile: req.mobileNo };
+      sms('Axis Bank (simulated)', `<span class="otpv">${otp}</span> is your OTP to verify your mobile number for Axis Bank account Re-KYC. Do not share it with anyone.`);
+      return { isSuccess: 'true', otpMessage: 'OTP sent successfully', respMessage: 'SUCCESS', otpId, aplRefId, appId, otpTime: '30' };
+    },
+    'axisbank/validate-otp-internal'(req, c) {
+      const rec = db.otps[req.otpId];
+      const okOtp = req.otpValidated || (rec && rec.otp === req.otp);
+      if (!okOtp) return { isSuccess: 'false', message: '', respCode: 'E01', reKycLink: '', bottomMessage: '', topMessage: '', dateTime: '', status: 'FAILED', respMessage: 'Invalid OTP. Please enter the correct OTP.', otpValidated: false };
+      const fail = c.linkFail === 'always' || (c.linkFail === 'once' && !db.linkFailUsed);
+      if (fail) { db.linkFailUsed = true; return { isSuccess: 'false', message: '', respCode: 'E05', reKycLink: '', bottomMessage: '', topMessage: '', dateTime: '', status: 'FAILED', respMessage: 'Unable to generate Re-KYC link from bank. Please try again.', otpValidated: true }; }
+      const link = 'https://rekyc.bank.example/r/' + rid('', 10);
+      const now = stamp();
+      const existing = db.history.find(h => h.mobNumber === req.mobileNo && h.activationStatus === 'Pending');
+      if (existing) { existing.updateTime = now; } else db.history.unshift({ mobNumber: req.mobileNo, logDateTime: now, updateTime: now, status: 'PENDING', activationStatus: 'Pending' });
+      sms('Axis Bank (simulated)', `Complete your Axis Bank savings account Re-KYC here: <u>${link}</u>`);
+      $('#complete').disabled = false;
+      return { isSuccess: 'true', message: 'Link sent', respCode: '00', reKycLink: link, bottomMessage: 'You will earn ₹10 commission when customer completes the Re-KYC successfully.', topMessage: 'Re-KYC Link sent', dateTime: now, status: 'PENDING', respMessage: 'SUCCESS', otpValidated: true };
+    },
+    'axisbank/fetch-history-common'(req) {
+      const list = db.history.filter(h => !req.mobileNo || h.mobNumber.includes(req.mobileNo));
+      return { respStatus: 'SUCCESS', respCode: '00', respDesc: list.length ? 'Records found' : 'No record found', lastPage: true, reKycHistoryDetails: list };
+    },
+  };
+
+  const why = {
+    'axisbank/generate-otp-internal': 'Sends the OTP to the customer. type SEND on first try, RESEND from the timer link.',
+    'axisbank/validate-otp-internal': 'Checks the OTP and asks Axis to text the Re-KYC link. Also used by Try Again! and Resend SMS.',
+    'axisbank/fetch-history-common': 'Loads this adhikari\'s Re-KYC requests.',
+  };
+
+  function api(path, body) {
+    const c = cfg();
+    const entry = logEntry(path, body);
+    return new Promise((resolve, reject) => setTimeout(() => {
+      if (c.netErr) { finishEntry(entry, 500, { error: 'Internal Server Error' }); reject(new Error('Something went wrong. Please try again.')); return; }
+      const res = JSON.parse(JSON.stringify(routes[path](body, c)));
+      const ok = (res.isSuccess ?? (res.respStatus === 'SUCCESS' ? 'true' : 'false')) === 'true';
+      finishEntry(entry, 200, res, ok);
+      resolve(res);
+    }, c.latency));
+  }
+
+  // ---------- network log ----------
+  const logEl = $('#log');
+  function fmt(o) {
+    return esc(JSON.stringify(o, null, 2))
+      .replace(/(&quot;[^&]+?&quot;)(:)/g, '<span class="k">$1</span>$2')
+      .replace(/: (&quot;.*?&quot;)/g, ': <span class="s">$1</span>')
+      .replace(/: (true|false|\d+)/g, ': <span class="n">$1</span>');
+  }
+  function logEntry(path, body) {
+    if (logEl.querySelector('.logempty')) logEl.innerHTML = '';
+    const d = document.createElement('details');
+    d.className = 'entry'; d.open = true;
+    [...logEl.querySelectorAll('details')].forEach(x => x.open = false);
+    d.innerHTML = `<summary><span class="meth">POST</span><span class="path">${esc(path)}</span><span class="st pend">…</span><span class="why">${esc(why[path] || '')}</span></summary>
+      <div class="io"><h4>Request · headers: auth token, device info (from CommonUtility.T)</h4><pre>${fmt(body)}</pre><h4>Response</h4><pre class="resp">waiting…</pre></div>`;
+    d._t0 = performance.now();
+    logEl.prepend(d);
+    return d;
+  }
+  function finishEntry(d, code, res, ok) {
+    const ms = Math.round(performance.now() - d._t0);
+    const st = d.querySelector('.st');
+    st.textContent = `${code} · ${ms}ms`;
+    st.className = 'st ' + (code !== 200 ? 'bad' : ok ? 'ok' : 'bad');
+    d.querySelector('.resp').innerHTML = fmt(res);
+  }
+
+  // ---------- customer's phone ----------
+  function sms(from, html) {
+    const box = $('#sms');
+    if (box.querySelector('.empty')) box.innerHTML = '';
+    const m = document.createElement('div');
+    m.className = 'm';
+    m.innerHTML = `<b>${esc(from)} · ${new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</b>${html}`;
+    box.prepend(m);
+  }
+  $('#complete').addEventListener('click', () => {
+    const p = db.history.find(h => h.activationStatus === 'Pending' && h.mobNumber === st.mobile) || db.history.find(h => h.activationStatus === 'Pending');
+    if (!p) return;
+    p.activationStatus = 'Completed'; p.status = 'SUCCESS'; p.updateTime = stamp();
+    sms('Axis Bank (simulated)', 'Your Re-KYC has been completed successfully. Thank you for banking with Axis Bank.');
+    $('#complete').disabled = !db.history.some(h => h.activationStatus === 'Pending');
+    if (st.screen === 'history') loadHistory(st.q || '');
+    toast('Customer finished Re-KYC. Status will show Completed in History.');
+  });
+
+  // ---------- app state ----------
+  const scr = $('#scr');
+  let st;
+  function initState() { st = { screen: 'home', mobile: '', otpResp: null, otpValidated: false, lastReq: null, lastResp: null, resendCount: 0, timer: 0, overlay: null, q: '', hist: null, histLoading: false, busy: false }; }
+  initState();
+  let tick = null, toastT = null;
+
+  function go(screen) { st.screen = screen; st.overlay = null; render(); }
+  function toast(msg) {
+    clearTimeout(toastT);
+    scr.querySelector('.toast')?.remove();
+    const t = document.createElement('div'); t.className = 'toast'; t.setAttribute('role', 'status'); t.textContent = msg; scr.appendChild(t);
+    toastT = setTimeout(() => t.remove(), 3200);
+  }
+  function setRail() {
+    const map = { home: 'home', intro: 'intro', otp: 'otp', success: 'success', history: 'history' };
+    const cur = st.overlay === 'proc' ? 'proc' : map[st.screen];
+    document.querySelectorAll('#rail span').forEach(s => s.classList.toggle('on', s.dataset.s === cur));
+  }
+  const sbar = `<div class="sb"><span>9:41</span><span>4G ▮▮▮ 82%</span></div>`;
+  const tbar = (title, back, menu) => `<div class="tb"><button class="ib" data-act="${back}" aria-label="Back"><span class="chev"></span></button>${title}${menu ? '<button class="ib dots" data-act="menu" aria-label="Menu">⋮</button>' : ''}</div>`;
+
+  function render() {
+    setRail();
+    let h = sbar;
+    if (st.screen === 'home') {
+      h += `<div class="view"><div class="hello"><small>Namaste,</small><b>Ramesh Kirana Store</b><div class="bal"><small>Wallet balance</small><b>₹12,480.50</b></div></div>
+        <div class="sec">Axis Bank services</div>
+        <div class="tiles">
+          <div class="tile dim"><i>SA</i>Savings A/c</div><div class="tile dim"><i>FD</i>Fixed Deposit</div><div class="tile dim"><i>CD</i>Cash Deposit</div>
+          <button class="tile live" data-act="tile"><i>RK</i>Re-KYC</button>
+          <div class="tile dim"><i>DA</i>Dormant A/c</div><div class="tile dim"><i>SM</i>SMS Services</div><div class="tile dim"><i>ST</i>A/c Status</div><div class="tile dim"><i>CA</i>Current A/c</div>
+        </div>
+        <div class="pad" style="flex:0"><span class="muted center" style="font-size:11px">Home is illustrative: only the Re-KYC tile is live. The real tile set comes from the server.</span></div></div>`;
+    }
+    if (st.screen === 'intro') {
+      h += tbar('Savings A/c Re-KYC', 'home', true) + `<div class="view">
+        <div class="web"><span class="tag">Web page · rekyc-landing-page.html (content not in the APK)</span><h3>Help customers update their KYC</h3>
+          <ul><li>For existing Axis Bank savings account holders</li><li>Customer gets an SMS link to complete Re-KYC</li><li>Earn commission on every successful Re-KYC</li></ul></div>
+        <div class="bpanel"><span class="t">Start Re-KYC</span>
+          <div class="fld"><label for="mob">Customer Mobile Number</label><input id="mob" inputmode="numeric" maxlength="10" autocomplete="off" placeholder="10-digit number" value="${esc(st.mobile)}"></div>
+          <button class="abtn w" data-act="sendOtp" ${st.mobile.length === 10 ? '' : 'disabled'}>Send OTP</button></div></div>`;
+    }
+    if (st.screen === 'otp') {
+      const t = st.timer;
+      h += tbar('Savings A/c Re-KYC', 'intro', true) + `<div class="view"><div class="pad">
+        <p style="margin:6px 0 0">Enter 6 digit OTP sent to  ${esc(st.mobile)}</p>
+        <div class="otpbox" id="otpbox">${Array.from({ length: 6 }, (_, i) => `<input id="o${i}" inputmode="numeric" maxlength="1" aria-label="OTP digit ${i + 1}">`).join('')}</div>
+        <p class="center muted" style="margin:0" id="tmr">${t > 0 ? `OTP Resend in 00:${String(t).padStart(2, '0')}` : ''}</p>
+        <p class="center" style="margin:0">Didn't receive OTP? <button class="lnk" data-act="resendOtp" ${t > 0 ? 'disabled' : ''}>Resend SMS</button></p>
+        <div style="flex:1"></div>
+        <button class="abtn p" data-act="verify" id="verify" disabled>Verify and Send Re-KYC Link</button></div></div>`;
+    }
+    if (st.screen === 'success') {
+      const r = st.lastResp || {};
+      h = `<div class="sb" style="background:var(--a-green);color:#e9fff3"><span>9:41</span><span>4G ▮▮▮ 82%</span></div><div class="view">
+        <div class="sh"><div class="tick"></div><b>${esc(r.topMessage || 'Re-KYC Link sent')}</b><span style="font-size:12px;opacity:.95">An SMS with a link to do Re-KYC has been sent on customer's mobile number</span></div>
+        <div class="pad" style="gap:12px">
+          <div class="card"><div class="rowx"><b style="font-weight:500">Re-KYC initiated</b><span class="pill">Pending</span></div><span class="muted" style="font-size:12px">${esc(r.dateTime || '')} · ${esc(st.mobile)}</span></div>
+          <div class="nsteps"><b>Next Steps</b><span><b>1. Click on link</b> · Open Link sent to customer mobile number</span><span><b>2. Enter Details</b> · Enter Axis Bank &amp; Aadhaar Details</span><span><b>3. Submit Details</b> · Submit details and complete the Re-KYC</span></div>
+          <div class="earn">${esc(r.bottomMessage || '')}</div>
+          <span class="muted" style="font-size:11px">SMS resends used: ${st.resendCount} of 2</span>
+        </div></div>
+        <div class="acts"><button data-act="resendLink"><i>↻</i>Resend SMS</button><button data-act="openLink"><i>↗</i>Re-KYC</button><button data-act="history"><i>≡</i>History</button><button data-act="home"><i>⌂</i>Home</button></div>`;
+    }
+    if (st.screen === 'history') {
+      h += tbar('History', st.histBack || 'home', false) + `<div class="view"><div class="pad" style="gap:10px">
+        <input class="search" id="q" placeholder="Search ‘Mobile Number’" inputmode="numeric" maxlength="10" value="${esc(st.q)}" aria-label="Search by mobile number">
+        <div class="hist" id="hist">${histHTML()}</div></div></div>`;
+    }
+    scr.innerHTML = h + overlayHTML();
+    wire();
+  }
+
+  function histHTML() {
+    if (st.histLoading || !st.hist) return '<p class="center muted">Loading…</p>';
+    if (!st.hist.length) return '<p class="center muted">No record found</p>';
+    return st.hist.map(x => `<div class="card"><div class="rowx"><span style="font-weight:500">${esc(x.mobNumber.replace(/(\d{5})(\d{5})/, '$1 $2'))}</span><span class="pill ${x.activationStatus === 'Completed' ? 'done' : ''}">${esc(x.activationStatus)}</span></div>
+      <span class="muted" style="font-size:11.5px">Requested ${esc(x.logDateTime)}${x.updateTime !== x.logDateTime ? ' · updated ' + esc(x.updateTime) : ''}</span>
+      ${x.activationStatus === 'Completed' ? '<span style="font-size:11.5px;color:#00733c">₹10 commission earned</span>' : ''}</div>`).join('');
+  }
+
+  function overlayHTML() {
+    const o = st.overlay;
+    if (!o) return st.busy ? `<div class="loading"><div><div class="spin"></div>${esc(st.busy)}</div></div>` : '';
+    if (o.type === 'alert') return `<div class="scrim"><div class="dlg"><p style="margin:0">${esc(o.msg)}</p><button class="abtn p" data-act="closeOv">OK</button></div></div>`;
+    if (o.type === 'retry') return `<div class="scrim"><div class="dlg"><p style="margin:0">${esc(o.msg)}</p><button class="abtn p" data-act="tryAgain">Try Again!</button><button class="abtn o" data-act="home">Home</button></div></div>`;
+    if (o.type === 'proc') return `<div class="scrim"><div class="dlg">${o.done ? '<div class="tick"></div><b style="font-size:16px">Re-KYC link sent</b>' : '<div class="spin"></div><b style="font-size:16px">Processing</b>'}</div></div>`;
+    if (o.type === 'menu') return `<div class="scrim" data-act="closeOv" style="place-items:start end;padding:56px 14px;background:transparent"><div class="dlg" style="width:auto;padding:6px;box-shadow:0 6px 20px rgba(0,0,0,.18)"><button class="lnk" style="padding:8px 14px;color:var(--a-fg)" data-act="history">History</button></div></div>`;
+    if (o.type === 'ext') return `<div class="ext"><div class="urlbar"><button class="ib" data-act="closeOv" aria-label="Close browser">✕</button><span>${esc(o.url)}</span></div>
+      <div class="pad"><b style="color:var(--a-fg);font-size:15px">Axis Bank Re-KYC (outside the app)</b><p style="margin:0">The real app opens this link in the phone's browser, on the adhikari's own device. The bank's web journey (Axis account and Aadhaar details) isn't in the APK, so it can't be simulated here.</p><p style="margin:0">Use "Customer completes Re-KYC" on the left to simulate the outcome.</p><button class="abtn o" data-act="closeOv">Back to app</button></div></div>`;
+    return '';
+  }
+
+  // ---------- behaviour (mirrors the decompiled logic) ----------
+  function validMobile(m) {
+    return /^[6-9]\d{9}$/.test(m) && !/(9999999|8888888|7777777|6666666)/.test(m);
+  }
+  function startTimer(sec) {
+    clearInterval(tick); st.timer = sec;
+    tick = setInterval(() => {
+      st.timer--;
+      const el = $('#tmr'), rs = scr.querySelector('[data-act="resendOtp"]');
+      if (el) el.textContent = st.timer > 0 ? `OTP Resend in 00:${String(st.timer).padStart(2, '0')}` : '';
+      if (st.timer <= 0) { clearInterval(tick); if (rs) rs.disabled = false; }
+    }, 1000);
+  }
+  async function sendOtp(type) {
+    st.busy = type === 'SEND' ? 'Sending OTP…' : 'Resending OTP…'; render();
+    const prev = st.otpResp || {};
+    const req = { mobileNo: st.mobile, otpId: '', type, aplRefId: type === 'RESEND' ? (prev.aplRefId || '') : '', module: 'REKYC', appId: type === 'RESEND' ? (prev.appId || '') : '' };
+    try {
+      const r = await api('axisbank/generate-otp-internal', req);
+      st.busy = false;
+      if (r.isSuccess === 'true') { st.otpResp = r; st.otpValidated = false; if (st.screen !== 'otp') st.screen = 'otp'; render(); startTimer(parseInt(r.otpTime, 10) || 30); }
+      else { render(); toast(r.otpMessage); }
+    } catch (e) { st.busy = false; render(); toast(e.message); }
+  }
+  async function validate(otp) {
+    const o = st.otpResp || {};
+    const req = { mobileNo: st.mobile, otp, otpId: o.otpId || '', aplRefId: o.aplRefId || '', module: 'REKYC', appId: o.appId || '', otpValidated: st.otpValidated };
+    st.lastReq = req; st.busy = 'Verifying Customer'; st.overlay = null; render();
+    try {
+      const r = await api('axisbank/validate-otp-internal', req);
+      st.busy = false; st.otpValidated = r.otpValidated;
+      if (r.isSuccess === 'true') {
+        st.lastResp = r; clearInterval(tick);
+        st.overlay = { type: 'proc' }; render();
+        setTimeout(() => { st.overlay = { type: 'proc', done: true }; render(); }, 900);
+        setTimeout(() => { st.resendCount = 0; go('success'); }, 2000);
+      } else if (r.otpValidated) { st.overlay = { type: 'retry', msg: r.respMessage || 'Something went wrong!' }; render(); }
+      else { render(); toast(r.respMessage || 'Something went wrong'); }
+    } catch (e) { st.busy = false; render(); toast(e.message); }
+  }
+  async function resendLink() {
+    if (st.resendCount >= 2) { toast('You have exceeded the maximum retry limit to generate the ReKYC link. Please start the process again'); return; }
+    st.busy = 'Resending link…'; render();
+    try {
+      const r = await api('axisbank/validate-otp-internal', st.lastReq);
+      st.busy = false;
+      if (r.isSuccess === 'true') { st.resendCount++; st.lastResp = r; render(); toast('Re-KYC link sent again to ' + st.mobile); }
+      else { render(); toast(r.respMessage || 'Something went wrong'); }
+    } catch (e) { st.busy = false; render(); toast(e.message); }
+  }
+  async function loadHistory(q) {
+    st.histLoading = true; if (st.screen === 'history') $('#hist').innerHTML = histHTML();
+    try {
+      const r = await api('axisbank/fetch-history-common', { mobileNo: q, fromDate: '', toDate: '', pageNumber: 1, module: 'REKYC' });
+      st.hist = r.reKycHistoryDetails;
+    } catch (e) { st.hist = []; toast(e.message); }
+    st.histLoading = false;
+    if (st.screen === 'history') $('#hist').innerHTML = histHTML();
+  }
+
+  const acts = {
+    tile() {
+      const parts = cfg().flag.split('|');
+      if (parts.length > 1 && parts[1].toUpperCase() === 'Y') go('intro');
+      else { st.overlay = { type: 'alert', msg: parts[2] || 'Service not available' }; render(); }
+    },
+    home() { clearInterval(tick); initState(); render(); },
+    intro() { clearInterval(tick); go('intro'); },
+    otp() { go('otp'); },
+    success() { go('success'); },
+    menu() { st.overlay = { type: 'menu' }; render(); },
+    closeOv() { st.overlay = null; render(); },
+    history() { st.histBack = st.screen === 'history' ? st.histBack : st.screen; st.q = ''; st.hist = null; go('history'); loadHistory(''); },
+    sendOtp() {
+      if (!validMobile(st.mobile)) { toast('Please enter the valid mobile number'); return; }
+      sendOtp('SEND');
+    },
+    resendOtp() { sendOtp('RESEND'); },
+    verify() { validate(otpVal()); },
+    tryAgain() { validate(st.lastReq ? st.lastReq.otp : otpVal()); },
+    resendLink,
+    openLink() { st.overlay = { type: 'ext', url: (st.lastResp || {}).reKycLink || '' }; render(); },
+  };
+  function otpVal() { return [...scr.querySelectorAll('#otpbox input')].map(i => i.value).join(''); }
+
+  function wire() {
+    scr.querySelectorAll('[data-act]').forEach(el => el.addEventListener('click', e => {
+      if (el.classList.contains('scrim') && e.target !== el) return;
+      const a = el.dataset.act;
+      if (a === 'history' && st.overlay?.type === 'menu') st.overlay = null;
+      acts[a] && acts[a]();
+    }));
+    const mob = $('#mob');
+    if (mob) {
+      mob.addEventListener('input', () => {
+        mob.value = mob.value.replace(/\D/g, '').slice(0, 10); st.mobile = mob.value;
+        const b = scr.querySelector('[data-act="sendOtp"]'); if (b) b.disabled = st.mobile.length !== 10;
+      });
+      if (!st.overlay && !st.busy) mob.focus();
+    }
+    const boxes = [...scr.querySelectorAll('#otpbox input')];
+    boxes.forEach((b, i) => {
+      b.addEventListener('input', () => {
+        const d = b.value.replace(/\D/g, '');
+        if (d.length > 1) { d.slice(0, 6).split('').forEach((c, j) => { if (boxes[j]) boxes[j].value = c; }); }
+        else b.value = d;
+        const next = boxes.find(x => !x.value); (next || boxes[5]).focus();
+        $('#verify').disabled = otpVal().length !== 6;
+      });
+      b.addEventListener('keydown', e => { if (e.key === 'Backspace' && !b.value && i > 0) { boxes[i - 1].value = ''; boxes[i - 1].focus(); $('#verify').disabled = true; } });
+    });
+    if (boxes.length && !st.overlay && !st.busy) boxes[0].focus();
+    const q = $('#q');
+    if (q) { let t; q.addEventListener('input', () => { q.value = q.value.replace(/\D/g, ''); st.q = q.value; clearTimeout(t); t = setTimeout(() => loadHistory(st.q), 400); }); }
+  }
+
+  $('#reset').addEventListener('click', () => {
+    clearInterval(tick); initState(); db.otps = {}; db.linkFailUsed = false;
+    $('#sms').innerHTML = '<div class="empty">No messages yet. The OTP and the Re-KYC link SMS appear here.</div>';
+    logEl.innerHTML = '<div class="logempty">API calls appear here as you use the app. Newest first.</div>';
+    $('#complete').disabled = !db.history.some(h => h.activationStatus === 'Pending');
+    render();
+  });
+  $('#linkFail').addEventListener('change', () => db.linkFailUsed = false);
+  $('#complete').disabled = !db.history.some(h => h.activationStatus === 'Pending');
+  render();
+})();
+</script>
