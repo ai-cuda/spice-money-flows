@@ -1,0 +1,27 @@
+epoch	flow	step	note
+1791830577	01	home	Home screen after login (activated adhikari, staging)
+1791830580	08	00-axis-hub	AXIS Banking hub (entry: home > AXIS Banking); tiles incl. Savings A/c Re-KYC, Re-activate Dormant; VIP upsell banner
+1791830595	08	01-intro-top	Intro: header Savings Account Re-KYC, benefits, Start Re-KYC panel (Send OTP disabled)
+1791830604	08	01-intro-steps	Landing page: 4-step process + Customer Eligibility (valid Aadhaar, Aadhaar-linked mobile)
+1791830611	08	01-intro-earn	Landing page: Earn Exciting Commission, Adhikari Earnings
+1791830616	08	01-intro-video	Landing page end: generic help video carousel
+1791830645	08	01a-invalid-number	Typed 5123456789: Send OTP enables at 10 digits; tap shows tooltip 'Please enter the valid mobile number' (no API call)
+1791830655	08	05-history-menu	Three-dot menu shows single item 'History'
+1791830663	08	05-history-error	Re-KYC History: Date filter chip, search box, 'No Record found'; staging returned dialog 'Something went wrong, Please try again later.' [OK]
+1791830872	08	01b-sendotp-error	Send OTP for test customer: staging returned 'Something went wrong, Please try again later.' (x2, retry identical) - Axis staging backend unavailable; same handler as History error
+1791831229	--	session-break	session-000910.mp4 closed; session-002319.mp4 started 00:23:19 IST
+1791831247	05	00-home-bills	Home 'Recharges and Bills' grid: Mobile Prepaid, Loan Repayment(Get Com..), Electricity, DTH, Agent Collection, Credit Card, FASTag(Get Com..), NHAI E-Notice(NEW), View More; wallet balance Rs 0
+1791831260	05	01-mobile-entry	Electricity: mobile entry (Bharat Connect logo, Continue disabled, History/Earnings/Commissions/Help/Complaints tiles)
+1791831277	05	01a-customer-display	After 10 digits: upside-down LCD 'CUSTOMER DISPLAY' panel shows number for customer; Continue enabled
+1791831289	05	02-select-state	Select State: search + full state list
+1791831298	05	03-select-biller	Select Biller: DELHI selected (Change link), search operator; staging billers: Jharkhand Bijli Vitran Nigam - Prepaid Meter Recharge, OCNS, OFMEDN Mobile
+1791831311	05	03a-bbps-not-enabled	After biller tap: dialog 'Dear Agent. BBPS is currently unavailable in your log-in. Please contact our customer care to understand the process of activation.' [OK] -- gate comes AFTER mobile, state and biller entry
+1791831348	07	01-intro-s1	UCP intro slide 1: Introducing UPI Cash point - 'Cash withdrawal Ka Naya Tareeka. No card, no fingerprint, no ATM. Just UPI.' CTA Try UPI Cash Point Now
+1791831360	07	01-intro-s2	Slide 2: Support All UPI Apps - 'Upi se cash ka 100% Legal, safe tareeka. Har UPI user ab hai aapka customer.'
+1791831369	07	01-intro-s3	Slide 3 (passing): Become Cash point - More customers, more commission, same day settlement, Enroll...; carousel auto-advances and loops
+1791831401	07	01-intro-cta	CTA 'Try UPI Cash Point Now' advances slides (does not skip); on slide 3 'Become Cash point. ...Enroll for your starter kit.' CTA becomes 'Get Started'
+1791831414	07	02-main-config-error	UCP main (Amount to withdraw Rs0, supported UPI apps, Notes) with dialog 'Error - Unable to process your request. Please try again after some time.' [OK] -> OK exits to home (config call failed on staging)
+1791831437	04	00-chooser-error	Money Transfer: 'Select a mode to transfer money' with staging dialog 'Something went wrong. Please try again.' [OK]
+1791831446	04	00-chooser	Chooser: DMT Plus RECOMMENDED (No Transfer Charges, High Transfer Limit, No bene Verification; Select and Continue) vs DMT 2.0 (No cooling off period, Sender login without OTP, Mark sender as favourite; Continue with DMT)
+1791831460	04	01-bc-transfer-error	BC Money Transfer (tabs Transfer/Ledger/In Process Transaction/Eli..; Customer Login search, 'or View my customers', View my Earnings) with staging error dialog on load
+1791831484	04	01a-sender-lookup-error	Typed test customer 7982005594: lookup auto-fires at 10 digits; staging 'Something went wrong. Please try again.'

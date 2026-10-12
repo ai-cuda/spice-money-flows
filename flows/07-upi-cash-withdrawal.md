@@ -150,3 +150,14 @@ Paths are relative to the jadx sources dir unless marked **[re-decompiled]**, wh
 - **[re-decompiled]** `spice/mudra/upiwithdraw/activity/UPIWithdrawMainActivity.java` (legacy tabs), `spice/mudra/upiwithdraw/fragment/UPIWithdrawFragment.java` (legacy with customer mobile), `UPICWHistoryFragment.java`, `UpiCwSettelmentFragment.java`
 - **[re-decompiled]** `spice/mudra/activity/UPIActivity.java`, `UPIBanking.java` (legacy wallet recharge, out of scope); `spice/mudra/activity/UPIScanQRCodeActivity.java`, `TransactionSummaryUPI.java`
 - Layouts (apktool `res/layout`): `upi_cash_point_main_activity`, `upi_cash_withdrawal_new`, `item_menu_upi_cashpoint`, `upi_cw_scan_qr_new`, `upi_withdraw_final_layout`, `ucp_failure_transaction_summary`, `ucp_supported_apps_activity`, `activity_upiwithdraw_intro_revamp`, `common_new_success_screen`, legacy `upi_cash_withdrawal`, `upi_cw_scan_qr`, `dialog_upiw_settle`, `fragment_upi_cw_settelment`
+
+## Live capture (phase 4, staging, 13 Oct 2026)
+Full notes: [captures/live](../captures/live/README.md).
+
+| Step | Live result | Capture |
+|---|---|---|
+| Intro | 3 auto-advancing slides: "Introducing UPI Cash point… No card, no fingerprint, no ATM. Just UPI." / "Support All UPI Apps" / "Become Cash point… Enroll for your starter kit." ✅ | ![](../captures/live/07/01-intro-s1.webp) ![](../captures/live/07/01-intro-s2.webp) ![](../captures/live/07/01-intro-s3.webp) |
+| CTA | "Try UPI Cash Point Now" **steps through the slides** instead of skipping them; it becomes "Get Started" on the last one | ![](../captures/live/07/01-intro-cta.webp) |
+| Main | "Amount to withdraw ₹0" with the dialog "Error – Unable to process your request. Please try again after some time." Tapping OK **exits the feature** to home | ![](../captures/live/07/02-main-config-error.webp) |
+
+Not yet captured: amount entry, QR states, status polling, receipt. These need the staging UPI Cash Point backend.

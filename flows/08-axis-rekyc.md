@@ -5,7 +5,7 @@
 ## Summary
 - **Who / when:** an adhikari helps an existing **Axis Bank savings-account customer** whose KYC is due. The adhikari doesn't do the KYC in the app. They verify the customer's mobile with an OTP, and Axis then sends the customer an SMS link to finish Re-KYC on a bank web page. ✅
 - **Entry points:**
-  - Home tile with service code `axis_rekyc`, through `AxisRedirection.onAxisRekycClick()` ✅
+  - Tile with service code `axis_rekyc`, through `AxisRedirection.onAxisRekycClick()` ✅. **Live (13 Oct):** in this build the tile sits inside the **AXIS Banking hub** (Home → AXIS Banking → *Savings A/c Re-KYC*), not on home
   - The same OTP screen is reused by the **Axis dormant-account re-activation** flow (`ActivityAxisDormentIntro`, flow type `DORMANT`) ✅
 - **Gates:** only the server preference `axis_rekyc` = `<x>|Y|<message>`. Anything other than `Y` shows `<message>` in a popup, or "Service not available" if there is no message. There are no eKYC, 2FA, device or balance checks in this flow. ✅
 - **Successful outcome:** "Re-KYC Link sent". The customer gets an SMS link, the request appears in History as Pending, and the adhikari earns **₹10 commission** when the customer finishes Re-KYC. ✅ The commission figure is hard-coded in the layout.
@@ -86,3 +86,16 @@ flowchart TD
 - `spice/mudra/axis/activity/rekyc/ActivityAxisRekycSuccess.java`: `setListener` (Resend limit 2, Re-KYC link, History, Home)
 - `spice/mudra/axis/activity/rekyc/ActivityAxisRekycHistory.java`, `fragment/DateFilterNewThemeDialog.java`
 - `spice/mudra/network/ApiInterface.java`: `fetchOtpAxisRekyc`, `validateOtpAxisRekyc`, `generateAxisRekycHistory`, `generateAxisRekycLink`; base URL `Constants.AXIS_MASTER_DATA_API` = `https://axiscasa.spicemoney.com/axisCasa/`
+
+## Live capture (phase 4, staging, 13 Oct 2026)
+Full notes: [captures/live](../captures/live/README.md).
+
+| Step | Live result | Capture |
+|---|---|---|
+| Entry | Home → AXIS Banking hub → Savings A/c Re-KYC. The hub shows a VIP upsell ("Losing Rs.3 extra commission per txn") | ![](../captures/live/08/00-axis-hub.webp) |
+| 01 Intro | Landing page: benefits, **4-step** process (the success screen shows 3), customer eligibility (valid Aadhaar, Aadhaar-linked mobile), commission and earnings blocks, FAQ, generic help video | ![](../captures/live/08/01-intro-top.webp) ![](../captures/live/08/01-intro-steps.webp) |
+| 01a | Invalid number → tooltip "Please enter the valid mobile number"; Send OTP enables at 10 digits ✅ | ![](../captures/live/08/01a-invalid-number.webp) |
+| 01b | Send OTP (test customer) → "Something went wrong, Please try again later." on staging | ![](../captures/live/08/01b-sendotp-error.webp) |
+| 05 | ⋮ → History → Date filter, mobile search, "No Record found", same staging error | ![](../captures/live/08/05-history-error.webp) |
+
+Not yet captured (staging Axis backend down): OTP screen, wrong-OTP branch, Processing, success screen, Resend SMS limit.

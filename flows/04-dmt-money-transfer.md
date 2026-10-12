@@ -193,3 +193,14 @@ All paths are relative to the jadx `sources/` dir. † marks classes missing fro
 - `spice/mudra/activity/accessdmtonweb/AccessDMTOnWebActivity.java` †; launched from `newDashboard/activity/AccountSettingActivity.java` (~L1423) and `NewDashboardSetting.java` (~L105)
 - `spice/mudra/dmtassistant/activity/ActivityIntroDmtAst.java` †, `DmtAssitantMainActivity.java` †
 - Layouts and strings: `apktool/res/layout/*.xml` listed above; `res/values/strings.xml`
+
+## Live capture (phase 4, staging, 13 Oct 2026)
+Full notes: [captures/live](../captures/live/README.md).
+
+| Step | Live result | Capture |
+|---|---|---|
+| Chooser | "Select a mode to transfer money". **DMT Plus** (RECOMMENDED): No Transfer Charges, High Transfer Limit, No bene Verification. **DMT 2.0**: No cooling off period, Sender login without OTP, Mark sender as favourite ✅. A staging error dialog appears on load | ![](../captures/live/04/00-chooser.webp) |
+| BC Money Transfer | Tabs: Transfer, Ledger, In Process Transaction and more. Customer Login search, "View my customers", "View my Earnings" | ![](../captures/live/04/01-bc-transfer-error.webp) |
+| Sender lookup | Fires automatically at 10 digits → "Something went wrong. Please try again." on staging | ![](../captures/live/04/01a-sender-lookup-error.webp) |
+
+Not yet captured: sender eKYC, beneficiaries, pre-transfer check, confirmation, receipt. These need the staging DMT backend.

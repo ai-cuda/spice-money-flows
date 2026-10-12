@@ -190,3 +190,15 @@ flowchart TD
 - `spice/mudra/bbps/v1/complaints/BBPSComplaintsActivity.java` (tabs); `fragments/RaiseComplaintFragment.java` (`ticketraise`), `fragments/TransactionHistoryFragment.java`; `TrackComplaintStatus.java`, `AllComplaintResultActivity.java`, `ComplaintCategoryActivity.java`; `SearchTransactionActivity.java` *(extra)*
 - `spice/mudra/bbps/v2/mobile/recharge/plans/MobileRechargePlansActivity.java` (quick pay / non-BBPS recharge / SIB / receipt start); `circles/MobileCircleSelectionActivity.java`; `operators/MobileOperatorsBottomSheet.java`; `confirmation/RechargeTransactionConfirmationDialog.java`; `receipt/MobileRechargePaymentReceiptActivity.java`
 - Layouts / strings: `res/layout/activity_bbps_mobile_entry.xml`, `activity_bbps_area_selection.xml`, `activity_bbps_biller_selection.xml`, `activity_bbps_bill_entry.xml`, `activity_bbps_bill_detail.xml`, `bbps_transaction_confirmation_dialog.xml`, `dialog_bbps_low_wallet_balance.xml`, `dialog_bbps_upi_qr_display.xml`, `activity_bbps_bill_payment_receipt.xml`, `transaction_based_complaint.xml`, `track_complaint_layout.xml`, `activity_mobile_recharge_plans.xml`, `recharge_transaction_confirmation.xml`, `activity_mobile_recharge_payment_receipt.xml`; `res/values/strings.xml`
+
+## Live capture (phase 4, staging, 13 Oct 2026)
+Full notes: [captures/live](../captures/live/README.md).
+
+| Step | Live result | Capture |
+|---|---|---|
+| Entry | Home "Recharges and Bills": Mobile Prepaid, Loan Repayment, Electricity, DTH, Agent Collection, Credit Card, FASTag, NHAI E-Notice, View More | ![](../captures/live/05/00-home-bills.webp) |
+| Mobile entry | Bharat Connect branding. The **upside-down customer display** appears once the number is typed ✅ | ![](../captures/live/05/01a-customer-display.webp) |
+| State → biller | Select State list → Select Biller (DELHI, Change). Staging billers: a Jharkhand electricity biller, OCNS, OFMEDN Mobile | ![](../captures/live/05/03-select-biller.webp) |
+| Gate | **After** the biller tap: "Dear Agent. BBPS is currently unavailable in your log-in…". The service gate comes late, after three steps of data entry | ![](../captures/live/05/03a-bbps-not-enabled.webp) |
+
+Not yet captured: bill fetch, amount rules, confirmation, low-balance (`SIB`) branch, receipt. These need a test ID with BBPS enabled.
