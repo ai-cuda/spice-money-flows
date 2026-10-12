@@ -1,0 +1,368 @@
+<title>Axis Re-KYC Journey</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Figtree:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a storyboard strip — numbered phone frames (the real sequence) with an annotation card under each; branches sit beside the step they leave from. */
+:root{
+  --bg:#f5f6f9; --surface:#ffffff; --fg:#1b1e2b; --muted:#5a6078; --line:#dfe2ea;
+  --accent:#293897; --ok:#009a51; --warn:#b26a00; --err:#c4362b;
+  --chip:#eef0f8;
+  --display:"Figtree",ui-sans-serif,system-ui,sans-serif;
+  --body:"Figtree",ui-sans-serif,system-ui,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  /* phone interiors reproduce the app, which is light-only */
+  --app-bg:#ffffff; --app-fg:#181b25; --app-muted:#4b5174; --app-blue:#293897; --app-green:#009a51; --app-line:#e3e6ef; --app-soft:#f3f5fb;
+  --app-font:"Roboto",system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#12141c; --surface:#1b1e29; --fg:#e7e9f2; --muted:#a2a8c0; --line:#2c3040;
+  --accent:#9aa6ff; --ok:#3ccf8a; --warn:#f0b04a; --err:#ff7a6e; --chip:#252a3a; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#12141c; --surface:#1b1e29; --fg:#e7e9f2; --muted:#a2a8c0; --line:#2c3040;
+  --accent:#9aa6ff; --ok:#3ccf8a; --warn:#f0b04a; --err:#ff7a6e; --chip:#252a3a; color-scheme:dark}
+
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:15px;line-height:1.5}
+.wrap{max-width:1240px;margin:0 auto;padding-inline:20px;padding-block:28px 56px}
+header{display:grid;gap:10px;max-width:72ch;margin-bottom:28px}
+.eyebrow{font:500 12px/1 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+h1{font:700 clamp(28px,4vw,40px)/1.1 var(--display);margin:0;text-wrap:balance}
+header p{margin:0;color:var(--muted)}
+.facts{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.fact{background:var(--chip);border-radius:999px;padding:5px 12px;font-size:13px}
+.fact b{font-weight:600}
+
+.board{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:28px 22px;align-items:start}
+.step{display:grid;gap:12px;min-width:0}
+.step-h{display:flex;align-items:baseline;gap:10px}
+.num{font:600 13px/1 var(--mono);color:var(--accent)}
+.step-h h2{font:600 17px/1.25 var(--display);margin:0}
+.kind{margin-left:auto;font:500 11px/1 var(--mono);text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+
+/* phone */
+.phone{width:100%;max-width:290px;aspect-ratio:9/17.5;background:#0d0f16;border-radius:30px;padding:9px;box-shadow:0 1px 0 var(--line),0 10px 28px rgba(20,24,40,.14)}
+.scr{position:relative;height:100%;background:var(--app-bg);border-radius:22px;overflow:hidden;font-family:var(--app-font);color:var(--app-fg);font-size:11.5px;line-height:1.4;display:flex;flex-direction:column}
+.sb{height:18px;display:flex;justify-content:space-between;padding:4px 14px 0;font-size:9.5px;color:var(--app-muted)}
+.tb{display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid var(--app-line);font-weight:500;font-size:13px}
+.tb .back{width:16px;height:16px;border-left:2px solid var(--app-fg);border-bottom:2px solid var(--app-fg);transform:rotate(45deg) scale(.6)}
+.tb .dots{margin-left:auto;letter-spacing:1px;font-weight:700}
+.body{flex:1;padding:12px;display:flex;flex-direction:column;gap:10px;min-height:0}
+.web{flex:1;background:var(--app-soft);border-radius:8px;padding:10px;display:flex;flex-direction:column;gap:7px;color:var(--app-muted);font-size:10px}
+.web .bar{height:7px;border-radius:4px;background:#dde2ef}
+.web .hero{height:62px;border-radius:6px;background:linear-gradient(135deg,#dfe3f6,#eef0fa);display:grid;place-items:center;color:var(--app-blue);font-weight:500}
+.panel{border-radius:14px 14px 0 0;background:var(--app-blue);color:#fff;padding:12px;display:grid;gap:8px;margin:0 -12px -12px}
+.panel .t{font-weight:700;font-size:13px}
+.field{background:#fff;color:var(--app-fg);border-radius:8px;padding:7px 9px;display:grid;gap:1px}
+.field small{color:var(--app-muted);font-size:9.5px}
+.btn{border-radius:8px;padding:9px;text-align:center;font-weight:500;font-size:12px}
+.btn.p{background:var(--app-blue);color:#fff}
+.btn.w{background:#fff;color:var(--app-blue)}
+.btn.g{background:var(--app-green);color:#fff}
+.btn.o{border:1px solid var(--app-blue);color:var(--app-blue);background:#fff}
+.otp{display:flex;gap:6px;justify-content:center}
+.otp span{width:28px;height:34px;border:1px solid #c7cce0;border-radius:6px;display:grid;place-items:center;font-size:15px;font-weight:500}
+.otp span.f{border-color:var(--app-blue)}
+.link{color:var(--app-blue);font-weight:500}
+.center{text-align:center}
+.spacer{flex:1}
+.toast{position:absolute;left:12px;right:12px;bottom:56px;background:#2b2e3a;color:#fff;border-radius:8px;padding:8px 10px;font-size:10.5px}
+.scrim{position:absolute;inset:0;background:rgba(15,18,30,.55);display:grid;place-items:center;padding:16px}
+.dlg{background:#fff;border-radius:14px;padding:16px 14px;display:grid;gap:10px;width:100%;text-align:center}
+.spin{width:44px;height:44px;border-radius:50%;border:4px solid #d9ddf0;border-top-color:var(--app-blue);margin:0 auto;animation:r 1.1s linear infinite}
+@keyframes r{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.spin{animation:none}}
+.tick{width:46px;height:46px;border-radius:50%;background:var(--app-green);display:grid;place-items:center;margin:0 auto}
+.tick::after{content:"";width:16px;height:9px;border-left:3px solid #fff;border-bottom:3px solid #fff;transform:rotate(-45deg) translate(1px,-2px)}
+.sh{background:var(--app-green);color:#fff;padding:14px 12px 16px;display:grid;gap:6px}
+.sh .tick{background:#fff;width:34px;height:34px;margin:0}
+.sh .tick::after{border-color:var(--app-green);width:12px;height:7px}
+.sh b{font-size:15px}
+.card{border:1px solid var(--app-line);border-radius:10px;padding:9px;display:grid;gap:6px}
+.row{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.pill{font-size:9.5px;font-weight:500;padding:2px 7px;border-radius:999px;background:#fff3dd;color:#9a5c00}
+.pill.done{background:#e1f5ea;color:#007a40}
+.steps{display:grid;gap:5px;font-size:10px;color:var(--app-muted)}
+.steps b{color:var(--app-fg);font-weight:500}
+.earn{background:#eaf7f0;color:#00733c;border-radius:8px;padding:7px 9px;font-size:10px}
+.acts{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;font-size:9.5px;text-align:center;color:var(--app-blue)}
+.acts div{display:grid;gap:3px;justify-items:center}
+.acts i{width:24px;height:24px;border-radius:50%;background:var(--app-soft);border:1px solid var(--app-line)}
+.tile{border:1px solid var(--app-line);border-radius:10px;padding:8px 4px;display:grid;justify-items:center;gap:5px;font-size:9.5px;text-align:center}
+.tile i{width:26px;height:26px;border-radius:8px;background:var(--app-soft)}
+.tile.hl{border-color:var(--app-blue);box-shadow:0 0 0 2px rgba(41,56,151,.18)}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.search{border:1px solid var(--app-line);border-radius:8px;padding:7px 9px;color:var(--app-muted)}
+.chips{display:flex;gap:5px}
+.chips span{border:1px solid var(--app-line);border-radius:999px;padding:3px 8px;font-size:9.5px}
+
+/* notes */
+.note{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px;display:grid;gap:8px;font-size:13.5px;min-width:0}
+.note p{margin:0}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:4px 10px;font-size:12.5px}
+.kv dt{color:var(--muted)}
+.kv dd{margin:0;min-width:0;overflow-wrap:anywhere}
+code{font:12px/1.4 var(--mono);background:var(--chip);padding:1px 5px;border-radius:4px}
+.br{display:grid;gap:5px;margin:0;padding:0;list-style:none;font-size:12.5px}
+.br li{display:grid;grid-template-columns:8px 1fr;gap:8px;align-items:baseline}
+.br li::before{content:"";width:8px;height:8px;border-radius:2px;background:var(--muted);transform:translateY(1px)}
+.br li.e::before{background:var(--err)}
+.br li.w::before{background:var(--warn)}
+.br li.k::before{background:var(--ok)}
+.conf{font:500 11px/1 var(--mono);color:var(--muted)}
+
+section.more{margin-top:44px;display:grid;gap:16px}
+section.more h2{font:700 22px/1.2 var(--display);margin:0}
+.obs{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.obs .note h3{font:600 15px/1.3 var(--display);margin:0}
+.diagram{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px;overflow-x:auto}
+footer{margin-top:36px;color:var(--muted);font-size:12.5px;max-width:80ch}
+</style>
+
+<div class="wrap">
+<header>
+  <span class="eyebrow">Spice Money v6.6.62 · flow 08 · reconstructed from code</span>
+  <h1>Axis Savings A/c Re-KYC</h1>
+  <p>An adhikari verifies an Axis customer's mobile number with an OTP. Axis then texts the customer a link, and the customer finishes Re-KYC on the bank's web page. The app never collects Aadhaar or KYC data itself.</p>
+  <div class="facts">
+    <span class="fact"><b>Tile</b> axis_rekyc</span>
+    <span class="fact"><b>Gate</b> one server flag</span>
+    <span class="fact"><b>Steps</b> 5 screens + 3 branches</span>
+    <span class="fact"><b>Agent earns</b> ₹10 on completion</span>
+  </div>
+</header>
+
+<div class="board">
+
+<!-- 0 -->
+<article class="step">
+  <div class="step-h"><span class="num">00</span><h2>Home tile</h2><span class="kind">entry</span></div>
+  <div class="phone"><div class="scr">
+    <div class="sb"><span>9:41</span><span>4G ▮▮▮</span></div>
+    <div class="tb">Banking services</div>
+    <div class="body">
+      <div class="grid4">
+        <div class="tile"><i></i>Axis Savings A/c</div>
+        <div class="tile"><i></i>Axis FD</div>
+        <div class="tile"><i></i>Axis Cash Deposit</div>
+        <div class="tile hl"><i></i>Axis Re-KYC</div>
+        <div class="tile"><i></i>Axis Dormant</div>
+        <div class="tile"><i></i>Axis SMS</div>
+        <div class="tile"><i></i>A/c Status</div>
+        <div class="tile"><i></i>Current A/c</div>
+      </div>
+      <div class="spacer"></div>
+      <p class="center" style="color:var(--app-muted);font-size:9.5px">Tile labels are illustrative; the server sends the home layout</p>
+    </div>
+  </div></div>
+  <div class="note">
+    <p>Tapping the tile reads the server preference <code>axis_rekyc</code>, formatted <code>…|Y|message</code>.</p>
+    <ul class="br">
+      <li class="k">Second field is <b>Y</b>: opens the intro.</li>
+      <li class="e">Anything else: an alert showing the third field, or "Service not available".</li>
+    </ul>
+    <span class="conf">✅ AxisRedirection.onAxisRekycClick</span>
+  </div>
+</article>
+
+<!-- 1 -->
+<article class="step">
+  <div class="step-h"><span class="num">01</span><h2>Intro and customer mobile</h2><span class="kind">screen</span></div>
+  <div class="phone"><div class="scr">
+    <div class="sb"><span>9:41</span><span>4G ▮▮▮</span></div>
+    <div class="tb"><span class="back"></span>Savings A/c Re-KYC<span class="dots">⋮</span></div>
+    <div class="body">
+      <div class="web">
+        <div class="hero">Re-KYC landing page</div>
+        <div class="bar" style="width:85%"></div><div class="bar" style="width:70%"></div><div class="bar" style="width:78%"></div>
+        <span>Web page from axiscasa.spicemoney.com; content not in the APK</span>
+      </div>
+      <div class="panel">
+        <span class="t">Start Re-KYC</span>
+        <div class="field"><small>Customer Mobile Number</small>98765 43210</div>
+        <div class="btn w">Send OTP</div>
+      </div>
+    </div>
+  </div></div>
+  <div class="note">
+    <dl class="kv">
+      <dt>Action</dt><dd>Enter the customer's 10-digit number, then tap Send OTP</dd>
+      <dt>API</dt><dd><code>POST axisbank/generate-otp-internal</code> · action <code>SEND</code> · module <code>REKYC</code></dd>
+    </dl>
+    <ul class="br">
+      <li class="w">Number not starting 6–9, or containing 9999999-style repeats: "Please enter the valid mobile number".</li>
+      <li class="e"><code>isSuccess=false</code>: toast showing the server's <code>otpMessage</code>.</li>
+      <li>⋮ menu → History (step 05).</li>
+    </ul>
+    <span class="conf">✅ ActivityIntroAxisRekyc · AxisMobileOtpBottomPanelBinder</span>
+  </div>
+</article>
+
+<!-- 2 -->
+<article class="step">
+  <div class="step-h"><span class="num">02</span><h2>Customer OTP</h2><span class="kind">screen</span></div>
+  <div class="phone"><div class="scr">
+    <div class="sb"><span>9:41</span><span>4G ▮▮▮</span></div>
+    <div class="tb"><span class="back"></span>Savings A/c Re-KYC<span class="dots">⋮</span></div>
+    <div class="body">
+      <p style="margin:6px 0 0">Enter 6 digit OTP sent to 9876543210</p>
+      <div class="otp"><span class="f">4</span><span class="f">8</span><span class="f">2</span><span class="f">0</span><span>&nbsp;</span><span>&nbsp;</span></div>
+      <p class="center" style="color:var(--app-muted);margin:0">OTP Resend in 00:27</p>
+      <p class="center" style="margin:0">Didn't receive OTP? <span class="link">Resend SMS</span></p>
+      <div class="spacer"></div>
+      <div class="btn p">Verify and Send Re-KYC Link</div>
+    </div>
+  </div></div>
+  <div class="note">
+    <dl class="kv">
+      <dt>Action</dt><dd>The customer reads out the OTP; the adhikari enters it</dd>
+      <dt>API</dt><dd><code>POST axisbank/validate-otp-internal</code>, overlay "Verifying Customer"</dd>
+      <dt>Timer</dt><dd>Length set by the server (<code>otpTime</code>); Resend calls the OTP API again with action <code>RESEND</code></dd>
+    </dl>
+    <ul class="br">
+      <li class="k"><code>isSuccess=true</code>: step 03.</li>
+      <li class="e">Wrong OTP (<code>otpValidated=false</code>): toast with the server message; the boxes clear.</li>
+      <li class="w">OTP correct but link failed: the Try Again dialog (02c).</li>
+    </ul>
+    <span class="conf">✅ ActivityAxisRekycOtp</span>
+  </div>
+</article>
+
+<!-- 2c -->
+<article class="step">
+  <div class="step-h"><span class="num">02c</span><h2>Link failed, try again</h2><span class="kind">branch</span></div>
+  <div class="phone"><div class="scr">
+    <div class="sb"><span>9:41</span><span>4G ▮▮▮</span></div>
+    <div class="tb"><span class="back"></span>Savings A/c Re-KYC</div>
+    <div class="body"><p>Enter 6 digit OTP sent to 9876543210</p></div>
+    <div class="scrim"><div class="dlg">
+      <p style="margin:0">Something went wrong!</p>
+      <p style="margin:0;color:var(--app-muted);font-size:10px">(server <code style="font-size:9px">respMessage</code> goes here)</p>
+      <div class="btn p">Try Again!</div>
+      <div class="btn o">Home</div>
+    </div></div>
+  </div></div>
+  <div class="note">
+    <p>The OTP was accepted, but Axis didn't generate the link. <b>Try Again!</b> repeats the validate call with the same OTP and <code>otpValidated=true</code>, so the customer doesn't need a new OTP.</p>
+    <span class="conf">✅ RekycReAttemptDialog · showGenerateLinkDialog</span>
+  </div>
+</article>
+
+<!-- 3 -->
+<article class="step">
+  <div class="step-h"><span class="num">03</span><h2>Processing</h2><span class="kind">dialog · 2 s</span></div>
+  <div class="phone"><div class="scr">
+    <div class="sb"><span>9:41</span><span>4G ▮▮▮</span></div>
+    <div class="tb"><span class="back"></span>Savings A/c Re-KYC</div>
+    <div class="body"></div>
+    <div class="scrim"><div class="dlg">
+      <div class="spin" role="img" aria-label="Processing"></div>
+      <b style="font-size:13px">Processing</b>
+      <div class="tick"></div>
+      <span style="font-size:13px;font-weight:500">Re-KYC link sent</span>
+    </div></div>
+  </div></div>
+  <div class="note">
+    <p>A Processing animation, then "Re-KYC link sent". After a fixed 2-second pause the success screen opens. Both states are drawn here; the app shows them one after the other.</p>
+    <span class="conf">✅ ActivityAxisRekycOtp.G0</span>
+  </div>
+</article>
+
+<!-- 4 -->
+<article class="step">
+  <div class="step-h"><span class="num">04</span><h2>Re-KYC link sent</h2><span class="kind">screen</span></div>
+  <div class="phone"><div class="scr">
+    <div class="sh">
+      <div class="tick"></div>
+      <b>Re-KYC Link sent</b>
+      <span style="font-size:10px;opacity:.95">An SMS with a link to do Re-KYC has been sent on customer's mobile number</span>
+    </div>
+    <div class="body" style="gap:8px">
+      <div class="card">
+        <div class="row"><b style="font-weight:500">Re-KYC initiated</b><span class="pill">Pending</span></div>
+        <span style="color:var(--app-muted);font-size:10px">12 Oct 2026 • 03:41 PM</span>
+      </div>
+      <div class="steps">
+        <b>Next Steps</b>
+        <span><b>1. Click on link</b> · Open Link sent to customer mobile number</span>
+        <span><b>2. Enter Details</b> · Enter Axis Bank &amp; Aadhaar Details</span>
+        <span><b>3. Submit Details</b> · Submit details and complete the Re-KYC</span>
+      </div>
+      <div class="earn">You will earn ₹10 commission when customer completes the Re-KYC successfully.</div>
+      <div class="spacer"></div>
+      <div class="acts"><div><i></i>Resend SMS</div><div><i></i>Re-KYC</div><div><i></i>History</div><div><i></i>Home</div></div>
+    </div>
+  </div></div>
+  <div class="note">
+    <p>The headline, date and footer come from the server (<code>topMessage</code>, <code>dateTime</code>, <code>bottomMessage</code>); the text shown is the layout default.</p>
+    <ul class="br">
+      <li><b>Resend SMS</b> repeats the validate call. After 2 resends: "You have exceeded the maximum retry limit…".</li>
+      <li class="w"><b>Re-KYC</b> opens the customer's link in the <em>adhikari's</em> browser.</li>
+      <li><b>History</b> → step 05 · <b>Home</b> → dashboard.</li>
+    </ul>
+    <span class="conf">✅ ActivityAxisRekycSuccess</span>
+  </div>
+</article>
+
+<!-- 5 -->
+<article class="step">
+  <div class="step-h"><span class="num">05</span><h2>Re-KYC history</h2><span class="kind">screen</span></div>
+  <div class="phone"><div class="scr">
+    <div class="sb"><span>9:41</span><span>4G ▮▮▮</span></div>
+    <div class="tb"><span class="back"></span>History</div>
+    <div class="body" style="gap:8px">
+      <div class="search">Search ‘Mobile Number’</div>
+      <div class="chips"><span>Filter by date</span><span>From – To</span></div>
+      <div class="card"><div class="row"><span>98765 43210</span><span class="pill">Pending</span></div><span style="color:var(--app-muted);font-size:10px">12 Oct • 03:41 PM</span></div>
+      <div class="card"><div class="row"><span>91234 56780</span><span class="pill done">Completed</span></div><span style="color:var(--app-muted);font-size:10px">10 Oct • 11:02 AM</span></div>
+      <div class="card"><div class="row"><span>99887 76655</span><span class="pill">Pending</span></div><span style="color:var(--app-muted);font-size:10px">08 Oct • 06:15 PM</span></div>
+      <p class="center" style="color:var(--app-muted);font-size:9.5px">Sample rows; status labels come from the server</p>
+    </div>
+  </div></div>
+  <div class="note">
+    <dl class="kv">
+      <dt>API</dt><dd><code>POST axisbank/fetch-history-common</code> · module <code>REKYC</code></dd>
+      <dt>Shows</dt><dd>Customer mobile, date and time, activation status; search by mobile; date filter</dd>
+    </dl>
+    <p>This is the only place the adhikari can see whether the customer finished. Nothing notifies them.</p>
+    <span class="conf">✅ screen · ⬛ status values</span>
+  </div>
+</article>
+
+</div>
+
+<section class="more">
+  <h2>What stands out</h2>
+  <div class="obs">
+    <div class="note"><h3>The agent is paid for something they can't finish</h3><p>Completion depends on the customer opening an SMS link and finishing alone. History is the only follow-up tool: no reminder to the customer, no nudge to the adhikari.</p></div>
+    <div class="note"><h3>The customer's link opens on the agent's phone</h3><p>The Re-KYC button opens the customer's link on the adhikari's device, so Aadhaar and bank details may get typed there. Worth a policy check.</p></div>
+    <div class="note"><h3>One flow, two products</h3><p>Dormant-account re-activation reuses this OTP screen and API with module <code>DORMANT</code>, changing only the labels and the success screen.</p></div>
+    <div class="note"><h3>Dead code</h3><p><code>axisbank/generate-link-common</code> is defined in the API layer but never called. History has a "Download Statement" label with nothing wired to it.</p></div>
+  </div>
+
+  <h2>Full flow</h2>
+  <div class="diagram">
+<pre class="mermaid">
+flowchart LR
+  T["Tile axis_rekyc"] -->|"flag not Y"| NA["Alert: service message"]
+  T -->|"flag Y"| I["01 Intro + mobile"]
+  I -->|"Send OTP"| O1{"generate-otp SEND"}
+  O1 -->|"fail"| T1["Toast otpMessage"]
+  O1 -->|"ok"| O["02 OTP"]
+  O -->|"Resend"| O1
+  O -->|"Verify"| V{"validate-otp"}
+  V -->|"wrong OTP"| T2["Toast, clear OTP"]
+  V -->|"link failed"| R["02c Try Again"]
+  R --> V
+  V -->|"ok"| P["03 Processing"]
+  P --> S["04 Link sent"]
+  S -->|"Resend SMS max 2"| V
+  S -->|"Re-KYC"| B["Customer link in agent browser"]
+  S --> H["05 History"]
+  I -->|"menu"| H
+</pre>
+  </div>
+</section>
+
+<footer>
+  Reconstructed from the decompiled APK (v6.6.62) for the spice-money-flows teardown; this is not a screen capture. The on-screen text comes from the app's own layouts and code. Proportions, icons and the home tile grid are approximations, and real screenshots will replace these frames in phase 4. ✅ means confirmed in code; ⬛ means decided on the server and not visible in the app.
+</footer>
+</div>

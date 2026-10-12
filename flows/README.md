@@ -13,6 +13,7 @@ The seven priority journeys in Spice Money v6.6.62, traced screen by screen from
 | 05 | [Bill payment (BBPS) + recharge](05-bbps-bill-payment.md) | Category grid / any tile with service details `B|…` | 22 | 61 / 8 / 7 |
 | 06 | [Wallet add money & Spice Pay](06-wallet-add-money-spicepay.md) | Tiles `ADD_MONEY`, `REQUEST_FUNDS`, `SP_QRCD`/`SP_QRCW` | 23 | 42 / 17 / 11 |
 | 07 | [UPI Cash Point](07-upi-cash-withdrawal.md) | Tile `UpiCWFlagnewweb`, deep link `upicashwithdrawal` | 19 | 48 / 11 / 6 |
+| 08 | [Axis savings Re-KYC](08-axis-rekyc.md) | Tile `axis_rekyc` | 13 | storyboard in `storyboards/axis-rekyc.html` |
 
 ## How the app is put together (common to all flows)
 
