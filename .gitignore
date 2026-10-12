@@ -1,0 +1,4 @@
+out/
+*.apk
+decomp/
+__pycache__/
