@@ -1,0 +1,6 @@
+activity,schemes,hosts,paths,browsable
+spice.mudra.activity.SplashActivity,spicenudges,,,True
+spice.mudra.activity.SplashActivity,spiceapp,,,True
+spice.mudra.activity.SplashActivity,http https,spiceapplink.sng.link,/A /B /E /F,True
+spice.mudra.activity.SplashActivity,http https,vf.spicemoney.com,/product /product/,True
+co.hyperverge.hyperkyc.ui.HKRedirectionActivity,,,,True

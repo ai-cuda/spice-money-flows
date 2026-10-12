@@ -1,0 +1,242 @@
+kind,endpoint,modules,example_class
+full,https://static-cdn.spicemoney.com/Voice-PrePost-Util/,(root),spice.mudra.GetDetailsForeground
+full,https://aepsapp.spicemoney.com/aeps/balEnquiryAppV1,EKYCModule,spice.mudra.EKYCModule.Common
+full,https://aepsapp.spicemoney.com/aeps/cashWithdrawalAppV1,EKYCModule,spice.mudra.EKYCModule.Common
+full,https://staging.spicemoney.com,EKYCModule utils,spice.mudra.EKYCModule.CustomDialogNetworkRequest
+concat,AEPS_CORE_URL + auth/init/APP,aadhaarpay aeps,spice.mudra.aadhaarpay.aadhaarPayRevamp.fragments.AadhaarPayRevampTransaction
+concat,AEPS_CORE_URL + divyang/form/upload/app,aadhaarpay activity aeps,spice.mudra.aadhaarpay.aadhaarPayRevamp.activities.AadhaarPayRevampSummary
+concat,AEPS_CORE_URL + rbl/loginV1,aadhaarpay aeps matmrewamp,spice.mudra.aadhaarpay.aadhaarPayRevamp.fragments.AadhaarPayRevampTransaction
+concat,AEPS_CORE_URL + sendRemarks/app,aadhaarpay aeps,spice.mudra.aadhaarpay.aadhaarPayRevamp.activities.AadhaarPayRevampSummary
+concat,AOB_SERVICE_THRESHOLD + block/service/v1,aadhaarpay newDashboard,spice.mudra.aadhaarpay.aadhaarPayRevamp.fragments.AadhaarPayRevampTransaction
+concat,API_GW_URL + updateVoiceFeatureFlag/v1,aadhaarpay aeps dmt2_0 matmrewamp upiwithdraw walletRevamp,spice.mudra.aadhaarpay.aadhaarPayRevamp.activities.AadhaarPayRevampSummary
+concat,Core_Url_Pricing + fetch/agg/appv1,aadhaarpay,spice.mudra.aadhaarpay.aadhaarPayRevamp.fragments.AadhaarPayRevampTransaction
+concat,DIGITALID_URL + csp/aeps?digitalId=,aadhaarpay,spice.mudra.aadhaarpay.aadhaarPayRevamp.fragments.AadhaarPayRevampTransaction
+concat,VOICE_ALERT + voice/plan,aadhaarpay aeps dmt2_0 matmrewamp upiwithdraw walletRevamp,spice.mudra.aadhaarpay.aadhaarPayRevamp.activities.AadhaarPayRevampSummary
+concat,WALLET_HISTORY_URL + historyService/download/history/pdf,aadhaarpay aeps,spice.mudra.aadhaarpay.aadhaarPayRevamp.activities.AadhaarPayRevampSummary
+concat,API_GW_REDIRECTION_CORE_URL + utilredirect/v1,activity axis firstLoginAob newDashboard,spice.mudra.activity.WalletSpiceMoney
+concat,API_GW_URL + agentPassword/v1,activity,spice.mudra.activity.LoginActivity
+concat,API_GW_URL + fingerVerfiy/v1,activity,spice.mudra.activity.LoginActivity
+concat,API_GW_URL + walletAdvisory/v1,activity walletRevamp,spice.mudra.activity.WalletSpiceMoney
+concat,CORE_URL_OTP_TEMP + ppi/pg/upi/check/txn/status/v1,activity,spice.mudra.activity.TransactionSummaryUPI
+concat,GRAHAK_LOAN + /details,activity,spice.mudra.activity.LoanCenterWebviewActivity
+concat,RBL_EKYC_CORE_URL + dmt/bc/ekyc/agentConsentStatus/v1,activity,spice.mudra.activity.WebViewActivity
+concat,SELF_CARE_URL + createSession,activity,spice.mudra.activity.ContactUsActivity
+concat,SPICE_ACADEMY + productDashboard,activity,spice.mudra.activity.WebViewActivity
+concat,SPICE_IFFCO_URL + pservices/session/expire,activity,spice.mudra.activity.WebViewActivity
+concat,TRAINING_CERTIFICATE + academy/getproduct,activity,spice.mudra.activity.WebViewActivity
+concat,TRAINING_CERTIFICATE + adhikari-loan,activity,spice.mudra.activity.CreditWebviewActivity
+concat,TRAINING_CERTIFICATE + adhikari-loan/session,activity,spice.mudra.activity.CreditWebviewActivity
+full,https://axisgold.spicemoney.com/gold-loan/lenders,activity,spice.mudra.activity.WebViewActivity
+full,https://b2b.spicemoney.com/main/html/cr/prvPol.html,activity newDashboard,spice.mudra.activity.LoginActivity
+full,https://grahakloan.spicemoney.com/adhikari-loan,activity utils,spice.mudra.activity.CreditWebviewActivity
+full,https://grahakloan.spicemoney.com/adhikari-loan/customer-details,activity,spice.mudra.activity.CreditWebviewActivity
+full,https://grahakloan.spicemoney.com/adhikari-loan/session,activity,spice.mudra.activity.CreditWebviewActivity
+full,https://grahakloan.spicemoney.com/credit-score,activity,spice.mudra.activity.WebViewActivity
+concat,AEPS_CORE_URL + device/map/init/app,aeps,spice.mudra.aeps.aepsdevicebinding.activity.BindingDeviceListActivity
+concat,AEPS_CORE_URL + rbl/initApp,aeps,spice.mudra.aeps.activity.NewAepsActivity
+concat,AEPS_CORE_URL + rbl/selfC2BHistoryApp,aeps,spice.mudra.aeps.fragments.AEPSNewHistoryFragment
+concat,AEPS_CORE_URL + recm/app,aeps,spice.mudra.aeps.activity.NewAepsActivity
+concat,AEPS_QR_WEB_LOGIN + qr/val/v1,aeps,spice.mudra.aeps.activity.NewAepsActivity
+concat,API_GW_URL + fetchVoiceFeature/v1,aeps services,spice.mudra.aeps.newAepsRevamp.activity.NewAepsActivityRevamped
+concat,CORE_URL_AEPS_INIT + app/setCommission,aeps fragment,spice.mudra.aeps.activity.NewAepsActivity
+concat,CORE_URL_GW_SMACORE4 + aeps/trans/pr/dtls,aeps,spice.mudra.aeps.fragments.AEPSNewHistoryFragment
+concat,Core_Url_Pricing + recmView/app,aeps,spice.mudra.aeps.activity.NewAepsActivity
+concat,GRAHAK_APP_URL + account/submitQuestions,aeps csp_profilling,spice.mudra.aeps.activity.TransactionConfirmationEkyc
+concat,MICRO_ATM_URL + initApp,aeps matmrewamp,spice.mudra.aeps.activity.NewAepsActivity
+full,https://api-gw.spicemoney.com/eKycSdkV2/ws/,aob7,spice.mudra.aob7.fragments.aadhar.AadharFragmentAob7$setPref$1
+full,https://uatekyc.spicemoney.com/eKycSdkV2/ws/,aob7 ekycsdk,spice.mudra.aob7.fragments.aadhar.AadharFragmentAob7$setPref$1
+concat,SPICE_ACADEMY + productDashboard?product=,axis newDashboard,spice.mudra.axis.activity.newactivity.ActivityIntroAxis
+full,https://stg-casa.spicemoney.com/axisCasa/images/ReactivateBank.jpg,axis,spice.mudra.axis.dorment.ActivityAxisDormentIntro
+full,https://stg-casa.spicemoney.com/axisCasa/images/ytImage.jpg,axis,spice.mudra.axis.dorment.ActivityAxisDormentIntro
+full,https://stg-webrevamp.spicemoney.com/ai/live-bot1?adhikari_id=,botsupport,spice.mudra.botsupport.voice.BotLiveChatWebActivity
+concat,BASE_PROFILING_QUESTIONS + spicepay/updateWallet,csp_profilling,spice.mudra.csp_profilling.crm_aeps.MarkSPWalletStatus
+retrofit,GET consent/{ver},ekycsdk,spice.mudra.ekycsdk.data.remote.ReKycService
+retrofit,GET deviceData/{ver},ekycsdk,spice.mudra.ekycsdk.data.remote.ReKycService
+retrofit,GET init/product,ekycsdk,spice.mudra.ekycsdk.data.remote.ReKycService
+retrofit,GET init/session,ekycsdk,spice.mudra.ekycsdk.data.remote.ReKycService
+retrofit,POST transaction/bfd,ekycsdk,spice.mudra.ekycsdk.data.remote.ReKycService
+retrofit,POST transaction/init/auth,ekycsdk,spice.mudra.ekycsdk.data.remote.ReKycService
+retrofit,POST transaction/init/auth/mob/val,ekycsdk,spice.mudra.ekycsdk.data.remote.ReKycService
+retrofit,POST transaction/init/auth/otp/initiate,ekycsdk,spice.mudra.ekycsdk.data.remote.ReKycService
+retrofit,POST transaction/init/auth/otp/val,ekycsdk,spice.mudra.ekycsdk.data.remote.ReKycService
+retrofit,POST transaction/init/demo,ekycsdk,spice.mudra.ekycsdk.data.remote.ReKycService
+retrofit,POST transaction/init/demo/otp/initiate,ekycsdk,spice.mudra.ekycsdk.data.remote.ReKycService
+retrofit,POST transaction/init/demo/otp/val,ekycsdk,spice.mudra.ekycsdk.data.remote.ReKycService
+concat,AOB4 + ws/api/fetchProfiling/v1,firstLoginAob,spice.mudra.firstLoginAob.NewCspProfilingActivity
+concat,AOB4 + ws/api/submitProfiling/v1,firstLoginAob,spice.mudra.firstLoginAob.NewCspProfilingActivity
+concat,API_GW_URL + agentApp/logout/v1,firstLoginAob rekyc2_0 yblekyc,spice.mudra.firstLoginAob.AOBCurrentstatusActivity
+concat,CORE_URL_AEPS_INIT + app/fetchCommission,fragment,spice.mudra.fragment.DacsCommisionPlans
+concat,CORE_URL_OTP_TEMP + nu/reg/otp/init/v1,fragment,spice.mudra.fragment.NewUserMobileNumber
+concat,CORE_URL_OTP_TEMP + v/otp,fragment,spice.mudra.fragment.NewUserMobileNumberVerification
+concat,FIVE_PE_CORE_URL + stats/,matmrewamp,spice.mudra.matmrewamp.activity.FinoATMTransactionSummaryRevamp
+concat,MICRO_ATM_URL + transactionUpdateApp,matmrewamp,spice.mudra.matmrewamp.activity.FinoATMTransactionSummaryRevamp
+concat,CORE_URL_GW_SMACORE4 + mpos/trans/dtls/v2,mosambee,spice.mudra.mosambee.TransactionFragment
+concat,MOVE_TO_DIS_CORE_URL + fetchDistDetails/app,movetodistributor,spice.mudra.movetodistributor.Repository.InitiateOTPRepository
+concat,MOVE_TO_DIS_CORE_URL + reverseWalletTnc/app,movetodistributor,spice.mudra.movetodistributor.Repository.InitiateOTPRepository
+concat,MOVE_TO_DIS_CORE_URL + reverseWalletTrans/app,movetodistributor,spice.mudra.movetodistributor.Repository.InitiateOTPRepository
+concat,MOVE_TO_DIS_CORE_URL + sendOtp/app,movetodistributor,spice.mudra.movetodistributor.Repository.InitiateOTPRepository
+concat,MOVE_TO_DIS_CORE_URL + validateOtp/app,movetodistributor,spice.mudra.movetodistributor.Repository.InitiateOTPRepository
+concat,API_GW_BIOLOGIN_URL + figer/enroll/v1,newDashboard,spice.mudra.newDashboard.activity.AccountSettingActivity
+concat,API_GW_URL_PHASE_3_1 + mer/setting/dtls,newDashboard,spice.mudra.newDashboard.activity.AccountSettingActivity
+concat,AXIS_MASTER_DATA_API_FD + v1/fetchStaticData,newDashboard,spice.mudra.newDashboard.utility.serviceHandling.AxisRedirection
+concat,CORE_URL_GW_SMACORE4 + bc/common/app/csp/details/update,newDashboard,spice.mudra.newDashboard.activity.AccountSettingActivity
+concat,CORE_URL_NSDL_CASA + account/checkEligibility,newDashboard,spice.mudra.newDashboard.utility.serviceHandling.NSDLRedirection
+concat,CORE_URL_NSDL_CASA + account/getNsdlAgentDetails,newDashboard,spice.mudra.newDashboard.utility.serviceHandling.NSDLRedirection
+concat,CORE_URL_NSDL_CASA + esign/upload,newDashboard,spice.mudra.newDashboard.utility.serviceHandling.NSDLRedirection
+concat,CORE_URL_NSDL_CASA + static/fetchStaticData,newDashboard,spice.mudra.newDashboard.utility.serviceHandling.NSDLRedirection
+concat,CORE_URL_NSDL_DS + fetchDSStaticData,newDashboard,spice.mudra.newDashboard.utility.serviceHandling.NSDLRedirection
+concat,CORE_URL_NSDL_IKIT_ORDER + static/fetchStaticData,newDashboard,spice.mudra.newDashboard.utility.serviceHandling.NSDLRedirection
+concat,CORE_URL_NSDL_IKIT_ORDER + static/reporting,newDashboard,spice.mudra.newDashboard.utility.serviceHandling.NSDLRedirection
+concat,NSDL_CASEDEPOSIT + fetchStaticData,newDashboard,spice.mudra.newDashboard.utility.serviceHandling.NSDLRedirection
+concat,NSDL_CASEWITHDRW + fetchStaticData,newDashboard,spice.mudra.newDashboard.utility.serviceHandling.NSDLRedirection
+full,https://nsdlcasa.spicemoney.com/nsdlRaiseTicket/static/fetchMasterData,newDashboard,spice.mudra.newDashboard.utility.serviceHandling.NSDLRedirection
+full,https://www.spicemoney.com/h_faq.html,newDashboard,spice.mudra.newDashboard.activity.AccountSettingActivity
+full,https://www.spicemoney.com/h_faq_bn.html,newDashboard,spice.mudra.newDashboard.activity.AccountSettingActivity
+full,https://www.spicemoney.com/h_faq_gu.html,newDashboard,spice.mudra.newDashboard.activity.AccountSettingActivity
+full,https://www.spicemoney.com/h_faq_hi.html,newDashboard,spice.mudra.newDashboard.activity.AccountSettingActivity
+full,https://www.spicemoney.com/h_faq_kn.html,newDashboard,spice.mudra.newDashboard.activity.AccountSettingActivity
+full,https://www.spicemoney.com/h_faq_ml.html,newDashboard,spice.mudra.newDashboard.activity.AccountSettingActivity
+full,https://www.spicemoney.com/h_faq_mr.html,newDashboard,spice.mudra.newDashboard.activity.AccountSettingActivity
+full,https://www.spicemoney.com/h_faq_ta.html,newDashboard,spice.mudra.newDashboard.activity.AccountSettingActivity
+full,https://www.spicemoney.com/h_faq_te.html,newDashboard,spice.mudra.newDashboard.activity.AccountSettingActivity
+full,https://nsdlcasa.spicemoney.com/nsdlRaiseTicket/,nsdl,spice.mudra.nsdl.viewmodel.NsdlMainViewModel
+concat,AEPS_CORE_URL + bank/iin/list/app,services,spice.mudra.services.GetBankList
+concat,CORE_URL + bio/err/log,services,spice.mudra.services.DeviceSupportService
+concat,CORE_URL_GW_SMACORE4 + apes/info/v2,services,spice.mudra.services.GetAEPSInfo
+concat,CORE_URL_GW_SMACORE4 + mer/fetch/banklist/dmt,services,spice.mudra.services.GetBankList
+concat,CORE_URL_GW_SMACORE4 + ppi/user/track/action,services,spice.mudra.services.HeartBeatService
+concat,DOWNLOAD_WALLET_CORE_URL + reportDownload/filtermdm,services,spice.mudra.services.HistoryFilterService
+concat,WALLET_HISTORY_URL + historyService/fetch/history/filter,services,spice.mudra.services.HistoryFilterService
+concat,GET_SPICE_CAMPAIGN + campaign/,utils,spice.mudra.utils.MarkCampaignStatus
+concat,GET_SPICE_CAMPAIGN + campaign/updateStatus,utils,spice.mudra.utils.MarkCampaignStatus
+full,https://academy.spicemoney.com,utils,spice.mudra.utils.Constants
+full,https://academy.spicemoney.com/,utils,spice.mudra.utils.Constants
+full,https://academy.spicemoney.com/ai/,utils,spice.mudra.utils.Constants
+full,https://academy.spicemoney.com/smacademy/,utils,spice.mudra.utils.Constants
+full,https://academy.spicemoney.com/unboxing/crm/,utils,spice.mudra.utils.Constants
+full,https://advcredit.spicemoney.com/,utils,spice.mudra.utils.Constants
+full,https://aepsapp.spicemoney.com/aeps/,utils,spice.mudra.utils.Constants
+full,https://aepsapp.spicemoney.com/aeps/rbl/,utils,spice.mudra.utils.Constants
+full,https://aepsapp.spicemoney.com/aepsService/,utils,spice.mudra.utils.Constants
+full,https://aepsapp.spicemoney.com/aepsService/ws/banner/,utils,spice.mudra.utils.Constants
+full,https://aob.spicemoney.com/rekyc21/ws/,utils,spice.mudra.utils.Constants
+full,https://aobapp.spicemoney.com/agentOnboarding4/ws/,utils,spice.mudra.utils.Constants
+full,https://aobapp.spicemoney.com/bank-setting/,utils,spice.mudra.utils.Constants
+full,https://aobapp.spicemoney.com/paywsapp/,utils,spice.mudra.utils.Constants
+full,https://api-gw.spicemoney.com,utils,spice.mudra.utils.Constants
+full,https://api-gw.spicemoney.com/agentOnboarding4/,utils,spice.mudra.utils.Constants
+full,https://api-gw.spicemoney.com/bbpsservices/,utils,spice.mudra.utils.Constants
+full,https://api-gw.spicemoney.com/bbpsservices/fetchautofilldata/1.0/,utils,spice.mudra.utils.Constants
+full,https://api-gw.spicemoney.com/bbpsservices/fetchbillermdm/1.0/,utils,spice.mudra.utils.Constants
+full,https://api-gw.spicemoney.com/bbpsservices/fetchmdmcategories/1.0/,utils,spice.mudra.utils.Constants
+full,https://api-gw.spicemoney.com/bbpsservices/fetchplansmdm/1.0/,utils,spice.mudra.utils.Constants
+full,https://api-gw.spicemoney.com/bbpsservices/fetchtopbillers/1.0/,utils,spice.mudra.utils.Constants
+full,https://api-gw.spicemoney.com/bbpswsapi/app/ws/,utils,spice.mudra.utils.Constants
+full,https://api-gw.spicemoney.com/bbpswsapi/app/ws/billvalidation/v1/vd,utils,spice.mudra.utils.Constants
+full,https://api-gw.spicemoney.com/core-play-integerity/api/v1/,utils,spice.mudra.utils.Constants
+full,https://api-gw.spicemoney.com/intropage/api/v1/,utils,spice.mudra.utils.Constants
+full,https://api-gw.spicemoney.com/smacoreapp/,utils,spice.mudra.utils.Constants
+full,https://api-gw.spicemoney.com/smacoreapp/aeps/trans/tab/summary,utils,spice.mudra.utils.Constants
+full,https://api-gw.spicemoney.com/smacoreapp/bc/common/,utils,spice.mudra.utils.Constants
+full,https://api-gw.spicemoney.com/smacoreapp/bc/common/app/csp/,utils,spice.mudra.utils.Constants
+full,https://api-gw.spicemoney.com/smacoreapp/bc/common/app/nu/,utils,spice.mudra.utils.Constants
+full,https://api-gw.spicemoney.com/smacoreapp/bc/common/app/nu/rfm/,utils,spice.mudra.utils.Constants
+full,https://api-gw.spicemoney.com/smacoreapp/cms/redirection,utils,spice.mudra.utils.Constants
+full,https://api-gw.spicemoney.com/smacoreapp/default/lang,utils,spice.mudra.utils.Constants
+full,https://api-gw.spicemoney.com/smacoreapp/fetch/fund/bnk/dtls,utils,spice.mudra.utils.Constants
+full,https://api-gw.spicemoney.com/smacoreapp/mer/acc/upd,utils,spice.mudra.utils.Constants
+full,https://api-gw.spicemoney.com/smacoreapp/ppi/,utils,spice.mudra.utils.Constants
+full,https://api-gw.spicemoney.com/smacoreapp/ppi/agent/pattern/,utils,spice.mudra.utils.Constants
+full,https://api-gw.spicemoney.com/smacoreapp/ppi/agent/pattern/expire,utils,spice.mudra.utils.Constants
+full,https://api-gw.spicemoney.com/smacoreapp/ppi/agent/pg/dtls/,utils,spice.mudra.utils.Constants
+full,https://api-gw.spicemoney.com/smacoreapp/ppi/gcm/update/,utils,spice.mudra.utils.Constants
+full,https://api-gw.spicemoney.com/smacoreapp/pre/login/info/V2,utils,spice.mudra.utils.Constants
+full,https://api-gw.spicemoney.com/smaspaywibmo/,utils,spice.mudra.utils.Constants
+full,https://app.spicemoney.com/bbpswsapi/app/ws/,utils,spice.mudra.utils.Constants
+full,https://app.spicemoney.com/faq-help-videos/,utils,spice.mudra.utils.Constants
+full,https://app.spicemoney.com/milestone/bc/common/,utils,spice.mudra.utils.Constants
+full,https://app.spicemoney.com/paywsapp/,utils,spice.mudra.utils.Constants
+full,https://app.spicemoney.com/paywsapp/bc/common/app/,utils,spice.mudra.utils.Constants
+full,https://app.spicemoney.com/paywsapp/bc/common/app/casa/,utils,spice.mudra.utils.Constants
+full,https://app.spicemoney.com/paywsapp/bc/common/app/nu/,utils,spice.mudra.utils.Constants
+full,https://app.spicemoney.com/paywsapp/bc/common/happy/,utils,spice.mudra.utils.Constants
+full,https://app.spicemoney.com/paywsapp/bcRkb/,utils,spice.mudra.utils.Constants
+full,https://app.spicemoney.com/paywsapp/ppi/,utils,spice.mudra.utils.Constants
+full,https://app.spicemoney.com/scommadhikariapp/ws/,utils,spice.mudra.utils.Constants
+full,https://app.spicemoney.com/smacoreapp/bc/common/app/nu/,utils,spice.mudra.utils.Constants
+full,https://app.spicemoney.com/smafeatureservice/bc/common/app/nu/,utils,spice.mudra.utils.Constants
+full,https://app.spicemoney.com/video-avatar/api/video/,utils,spice.mudra.utils.Constants
+full,https://axis-services.spicemoney.com/axis-srvs/,utils,spice.mudra.utils.Constants
+full,https://axiscasa.spicemoney.com/axisCD/casa/api/v1/,utils,spice.mudra.utils.Constants
+full,https://axiscasa.spicemoney.com/axisCasa/,utils,spice.mudra.utils.Constants
+full,https://axiscasa.spicemoney.com/axisFD/,utils,spice.mudra.utils.Constants
+full,https://b2b.spicemoney.com/,utils,spice.mudra.utils.Constants
+full,https://b2b.spicemoney.com/scomm/d/ws/,utils,spice.mudra.utils.Constants
+full,https://bbps.spicemoney.com/commision-cashback/,utils,spice.mudra.utils.Constants
+full,https://bkdservices.spicemoney.com/createpdf/pub/create/v1,utils,spice.mudra.utils.Constants
+full,https://corp.spicemoney.com/,utils,spice.mudra.utils.Constants
+full,https://corp.spicemoney.com/voice-alert/,utils,spice.mudra.utils.Constants
+full,https://creditutil.spicemoney.com/credit/api/v1/okyc,utils,spice.mudra.utils.Constants
+full,https://credlos.spicemoney.com/credlos/v2/api/edi-loan-lifecycle/status,utils,spice.mudra.utils.Constants
+full,https://dmt.spicemoney.com/scomagentapp/,utils,spice.mudra.utils.Constants
+full,https://dmt.spicemoney.com/scomagentekyc/,utils,spice.mudra.utils.Constants
+full,https://dmt.spicemoney.com/scommbcnsdl/ws/,utils,spice.mudra.utils.Constants
+full,https://dmt.spicemoney.com/scommdmtbcrbl/rbl/,utils,spice.mudra.utils.Constants
+full,https://dmt.spicemoney.com/scommyblekyc/ws/,utils,spice.mudra.utils.Constants
+full,https://dmt.spicemoney.com/scommyblekyc/ws/rekyc/,utils,spice.mudra.utils.Constants
+full,https://dmtbc.spicemoney.com/commonbcdmt/ws/,utils,spice.mudra.utils.Constants
+full,https://dtoolkit.spicemoney.com/data-tool,utils,spice.mudra.utils.Constants
+full,https://fltweb.spicemoney.com/agreement/agreement,utils,spice.mudra.utils.Constants
+full,https://gold.spicemoney.com/spicegold/ws/sm/,utils,spice.mudra.utils.Constants
+full,https://grahakapp.spicemoney.com/grahakApp/,utils,spice.mudra.utils.Constants
+full,https://grahakloan.spicemoney.com/daily-instalment-loan,utils,spice.mudra.utils.Constants
+full,https://insurance.spicemoney.com/lic-suvidha/,utils,spice.mudra.utils.Constants
+full,https://insurance.spicemoney.com/vbdBackend/,utils,spice.mudra.utils.Constants
+full,https://lead.spicemoney.com/matm-device/prod/,utils,spice.mudra.utils.Constants
+full,https://microatm.spicemoney.com/atm/,utils,spice.mudra.utils.Constants
+full,https://microatm.spicemoney.com/atm/mpos/req/init,utils,spice.mudra.utils.Constants
+full,https://mtoolkit.spicemoney.com/,utils,spice.mudra.utils.Constants
+full,https://mtoolkit.spicemoney.com/marketing-tool,utils,spice.mudra.utils.Constants
+full,https://mtoolkit.spicemoney.com/mtoolkit/v3/,utils,spice.mudra.utils.Constants
+full,https://mtoolkit.spicemoney.com/survey/,utils,spice.mudra.utils.Constants
+full,https://myapp.spicemoney.com/cust/a/ws/,utils,spice.mudra.utils.Constants
+full,https://myapp.spicemoney.com/cust/a/ws/digitalId/,utils,spice.mudra.utils.Constants
+full,https://myapp.spicemoney.com/cust/c/ws/,utils,spice.mudra.utils.Constants
+full,https://myapp.spicemoney.com/message/ws/,utils,spice.mudra.utils.Constants
+full,https://myteam.spicemoney.com/tierBackend/ws/v1/,utils,spice.mudra.utils.Constants
+full,https://nsdlcasa.spicemoney.com/casaTransaction/cashDeposit/,utils,spice.mudra.utils.Constants
+full,https://nsdlcasa.spicemoney.com/casaTransaction/cashWithdraw/,utils,spice.mudra.utils.Constants
+full,https://nsdlcasa.spicemoney.com/nsdlCasa-di/,utils,spice.mudra.utils.Constants
+full,https://nsdlcasa.spicemoney.com/nsdlCasa-di/ds/,utils,spice.mudra.utils.Constants
+full,https://nsdlcasa.spicemoney.com/nsdlIKit/,utils,spice.mudra.utils.Constants
+full,https://nsdlekyc.spicemoney.com/nsdlkosubko/ws/,utils,spice.mudra.utils.Constants
+full,https://paygs.spicemoney.com/,utils,spice.mudra.utils.Constants
+full,https://paygs.spicemoney.com/requestFund/ws/,utils,spice.mudra.utils.Constants
+full,https://paygs.spicemoney.com/walletRevamp/ws/,utils,spice.mudra.utils.Constants
+full,https://payments.spicemoney.com/lic-switch/prod/ws/sm/,utils,spice.mudra.utils.Constants
+full,https://payments.spicemoney.com/merchantcash/,utils,spice.mudra.utils.Constants
+full,https://payu.spicemoney.com/,utils,spice.mudra.utils.Constants
+full,https://ppiupi.spicemoney.com/,utils,spice.mudra.utils.Constants
+full,https://ppiupi.spicemoney.com/ApplicationAuth/,utils,spice.mudra.utils.Constants
+full,https://profiling.spicemoney.com/,utils,spice.mudra.utils.Constants
+full,https://profiling.spicemoney.com/certs/getCertificates,utils,spice.mudra.utils.Constants
+full,https://profiling.spicemoney.com/jar-digital/,utils,spice.mudra.utils.Constants
+full,https://sfc.spicemoney.com/,utils,spice.mudra.utils.Constants
+full,https://sfc.spicemoney.com/selfcare/,utils,spice.mudra.utils.Constants
+full,https://spayreq.spicemoney.com/,utils,spice.mudra.utils.Constants
+full,https://spayreq.spicemoney.com/smaspaywibmo/nu/,utils,spice.mudra.utils.Constants
+full,https://star.spicemoney.com/advanceRental/,utils,spice.mudra.utils.Constants
+full,https://star.spicemoney.com/advanceRental/advance/rental/,utils,spice.mudra.utils.Constants
+full,https://stats.spicemoney.com/,utils,spice.mudra.utils.Constants
+full,https://stats.spicemoney.com/historyService/,utils,spice.mudra.utils.Constants
+full,https://stats.spicemoney.com/historyService/fetch/receipt/details,utils,spice.mudra.utils.Constants
+full,https://stats.spicemoney.com/historyService/walletSharing/,utils,spice.mudra.utils.Constants
+full,https://stats.spicemoney.com/scomm/offer/ws/,utils,spice.mudra.utils.Constants
+full,https://stg-apprevamp.spicemoney.com/smacoreapp/ppi/agent/optpostgres/init/v2,utils,spice.mudra.utils.Constants
+full,https://vf.spicemoney.com/voicefeature/ws/app/nu/,utils,spice.mudra.utils.Constants
+full,https://yblupi.spicemoney.com/upicash/api/v1/,utils,spice.mudra.utils.Constants
+full,https://yblupi.spicemoney.com/upicashnw/api/v1/,utils,spice.mudra.utils.Constants
+full,https://yblupi.spicemoney.com/upiptom/api/v1/,utils,spice.mudra.utils.Constants
+concat,API_GW_URL + get/voiceScript/v1,voicefeatures,spice.mudra.voicefeatures.VoiceLangAdapter
+concat,API_GW_URL + updateVoiceFeatureStatus/v1,voicefeatures,spice.mudra.voicefeatures.UpdateLangService
+concat,VOICE_ALERT_URL + fetchVoiceFeatureDemonitaion/v1,voicefeatures,spice.mudra.voicefeatures.VoiceConfirmationService
