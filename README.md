@@ -9,7 +9,7 @@ A screen-by-screen map of user flows in the Spice Money (adhikari) Android app, 
 | Phase | Output | Status |
 |---|---|---|
 | 1. Static teardown | [INVENTORY.md](INVENTORY.md) and `inventory/` | Done (v6.6.62) |
-| 2. Flow mapping from code | [flows/](flows/README.md): 11 journeys, plus clickable prototypes in `prototypes/`, with branches, conditions and findings | Done |
+| 2. Flow mapping from code | [flows/](flows/README.md): 12 journeys, plus clickable prototypes in `prototypes/`, with branches, conditions and findings | Done |
 | 3. Screen rendering from layouts | `screens/rendered/` (169 screens) and the renderer in `scripts/render/` | Done |
 | 4. Live capture on a device | [captures/live](captures/live/README.md): 25 live screens across 5 flows | Session 1 done; blocked by staging backends and test-ID permissions |
 | 5. Packaging | Storyboard, deck or video per flow | |

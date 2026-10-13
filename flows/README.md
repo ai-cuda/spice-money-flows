@@ -17,6 +17,7 @@ The seven priority journeys in Spice Money v6.6.62, traced screen by screen from
 | 09 | [Bill payment: Education Fees](09-bbps-education-fees.md) | Recharges and Bills → View More → Education Fees (category 27) | 10 | prototype in `prototypes/bbps-education-fees-prototype.html` |
 | 10 | [Bill payment: Loan Repayment, single and bulk](10-bbps-loan-repayment.md) | Recharges and Bills → Loan Repayment (category 23) | 9 + 30 | prototype in `prototypes/bbps-loan-repayment-prototype.html`, 86 screenshots in `captures/prototype/10-loan-repayment/` |
 | 11 | [AePS: NSDL eKYC onboarding (KO and Sub-KO)](11-nsdl-aeps-onboarding.md) | AePS tile when the NSDL eKYC mandate is on; AePS menu → Manage Staff; Account → KYC status | 24 | prototype in `prototypes/aeps-nsdl-onboarding-prototype.html`, 61 screenshots in `captures/prototype/11-nsdl-aeps-onboarding/` |
+| 12 | [Bill payment: Electricity](12-bbps-electricity.md) | Recharges and Bills → Electricity (category 7) | 10 | prototype in `prototypes/bbps-electricity-prototype.html`, 38 screenshots in `captures/prototype/12-electricity/` |
 
 ## How the app is put together (common to all flows)
 
