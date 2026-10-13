@@ -352,6 +352,57 @@ def vec_color(v):
     r, g, b, a = rgba
     return f"#{r:02x}{g:02x}{b:02x}", a
 
+AAPT = "{http://schemas.android.com/aapt}"
+_grad_n = [0]
+
+def gradient_def(g):
+    """Android <gradient> element -> (svg def string, id)."""
+    _grad_n[0] += 1
+    gid = f"g{_grad_n[0]}"
+    stops = []
+    items = g.findall("item")
+    if items:
+        for it in items:
+            c, a = vec_color(it.get(ANDROID + "color"))
+            stops.append(f'<stop offset="{it.get(ANDROID + "offset", "0")}" stop-color="{c or "#000"}" stop-opacity="{a:.3f}"/>')
+    else:
+        for off, k in (("0", "startColor"), ("0.5", "centerColor"), ("1", "endColor")):
+            if g.get(ANDROID + k):
+                c, a = vec_color(g.get(ANDROID + k))
+                stops.append(f'<stop offset="{off}" stop-color="{c or "#000"}" stop-opacity="{a:.3f}"/>')
+    f = lambda k, d="0": g.get(ANDROID + k, d)
+    if g.get(ANDROID + "type") == "radial":
+        d = (f'<radialGradient id="{gid}" gradientUnits="userSpaceOnUse" cx="{f("centerX")}" cy="{f("centerY")}" '
+             f'r="{f("gradientRadius", "1")}">' + "".join(stops) + "</radialGradient>")
+    else:
+        d = (f'<linearGradient id="{gid}" gradientUnits="userSpaceOnUse" x1="{f("startX")}" y1="{f("startY")}" '
+             f'x2="{f("endX")}" y2="{f("endY")}">' + "".join(stops) + "</linearGradient>")
+    return d, gid
+
+def paint(el, attr, defs):
+    """Resolve a fill/stroke: plain colour, @drawable gradient file, or inline aapt:attr gradient."""
+    v = el.get(ANDROID + attr)
+    for aa in el.findall(AAPT + "attr"):
+        if aa.get("name") == "android:" + attr:
+            g = aa.find("gradient")
+            if g is not None:
+                d, gid = gradient_def(g)
+                defs.append(d)
+                return f"url(#{gid})", 1.0
+    if v and v.startswith("@drawable/"):
+        path = find_drawable(v.split("/", 1)[1])
+        if path and path.endswith(".xml"):
+            try:
+                g = ET.parse(path).getroot()
+            except ET.ParseError:
+                g = None
+            if g is not None and g.tag == "gradient":
+                d, gid = gradient_def(g)
+                defs.append(d)
+                return f"url(#{gid})", 1.0
+        return None, 1
+    return vec_color(v)
+
 def vector_to_svg(root, tint=None):
     vw = resolve_ref(root.get(ANDROID + "viewportWidth")) or "24"
     vh = resolve_ref(root.get(ANDROID + "viewportHeight")) or "24"
@@ -361,7 +412,7 @@ def vector_to_svg(root, tint=None):
     t = tint or root.get(ANDROID + "tint")
     if t:
         tint_col = vec_color(t)
-    parts = []
+    parts, defs = [], []
 
     def walk(el):
         for ch in el:
@@ -381,10 +432,8 @@ def vector_to_svg(root, tint=None):
                 d = ch.get(ANDROID + "pathData")
                 if not d:
                     continue
-                fill, fa = vec_color(ch.get(ANDROID + "fillColor"))
-                stroke, sa = vec_color(ch.get(ANDROID + "strokeColor"))
-                if fill is None and ch.find(".//{http://schemas.android.com/aapt}attr") is not None:
-                    fill, fa = "#9aa3b5", 1
+                fill, fa = paint(ch, "fillColor", defs)
+                stroke, sa = paint(ch, "strokeColor", defs)
                 if tint_col and tint_col[0]:
                     fill = tint_col[0] if fill else None
                     stroke = tint_col[0] if stroke else None
@@ -396,12 +445,10 @@ def vector_to_svg(root, tint=None):
                 join = ch.get(ANDROID + "strokeLineJoin", "miter")
                 parts.append(f'<path d="{html.escape(d)}" fill="{fill or "none"}" fill-opacity="{fa:.3f}" fill-rule="{rule}" '
                              f'stroke="{stroke or "none"}" stroke-opacity="{sa:.3f}" stroke-width="{sw}" stroke-linecap="{cap}" stroke-linejoin="{join}"/>')
-            elif ch.tag == "clip-path":
-                pass
     walk(root)
     alpha = float(root.get(ANDROID + "alpha", 1) or 1)
     return (f'<svg xmlns="http://www.w3.org/2000/svg" width="{w}" height="{h}" viewBox="0 0 {vw} {vh}" opacity="{alpha}">'
-            + "".join(parts) + "</svg>")
+            + (f"<defs>{''.join(defs)}</defs>" if defs else "") + "".join(parts) + "</svg>")
 
 # ---------------------------------------------------------------- fonts
 FONT_FILES = {}
