@@ -1,0 +1,537 @@
+<title>Education Fees Prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Figtree:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: workbench — scenario controls + parent's phone | the adhikari app | network log. One column on phones (app first). */
+:root{
+  --bg:#f3f4f8; --surface:#ffffff; --fg:#1b1e2b; --muted:#5a6078; --line:#dde1ea; --chip:#eceff7;
+  --accent:#293897; --ok:#0a8a4b; --warn:#a86200; --err:#c4362b; --code-bg:#f6f7fb;
+  --display:"Figtree",ui-sans-serif,system-ui,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  /* app interior (the real app is light-only) */
+  --a-bg:#ffffff; --a-fg:#181b25; --a-muted:#5b6178; --a-blue:#293897; --a-red:#e3262d; --a-line:#e2e5ee; --a-soft:#f4f5fa; --a-green:#009a51;
+  --a-grad:linear-gradient(90deg,#2c3a98 0%,#7a2f6f 55%,#e3262d 100%);
+  --a-font:"Manrope",system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#11131a; --surface:#1a1d28; --fg:#e7e9f2; --muted:#a1a7bf; --line:#2b2f3f; --chip:#242939;
+  --accent:#9ba7ff; --ok:#3fcf8b; --warn:#f0b04a; --err:#ff7b6f; --code-bg:#141720; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#11131a; --surface:#1a1d28; --fg:#e7e9f2; --muted:#a1a7bf; --line:#2b2f3f; --chip:#242939;
+  --accent:#9ba7ff; --ok:#3fcf8b; --warn:#f0b04a; --err:#ff7b6f; --code-bg:#141720; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--display);font-size:14px;line-height:1.45}
+.wrap{max-width:1380px;margin:0 auto;padding-inline:18px;padding-block:20px 40px}
+.top{display:flex;flex-wrap:wrap;align-items:end;gap:12px 24px;margin-bottom:18px}
+.top h1{font:700 26px/1.1 var(--display);margin:0;text-wrap:balance}
+.top p{margin:4px 0 0;color:var(--muted);max-width:74ch}
+.top .meta{margin-left:auto;font:500 11px/1.5 var(--mono);color:var(--muted);text-align:right}
+.bench{display:grid;grid-template-columns:minmax(250px,300px) auto minmax(300px,1fr);gap:20px;align-items:start}
+@media (max-width:1060px){.bench{grid-template-columns:1fr 1fr}.col-phone{grid-column:1/-1;justify-self:center}}
+@media (max-width:700px){.bench{grid-template-columns:1fr}.col-phone{order:-1}}
+.col{display:grid;gap:14px;min-width:0}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px;display:grid;gap:10px;min-width:0}
+.panel h2{font:600 12px/1 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:0}
+.ctl{display:grid;gap:4px}
+.ctl label{font-size:13px;font-weight:500}
+.ctl small{color:var(--muted);font-size:12px}
+select{font:inherit;font-size:13px;background:var(--bg);color:var(--fg);border:1px solid var(--line);border-radius:8px;padding:6px 8px;width:100%}
+.sw{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:13px;font-weight:500}
+.sw input{width:36px;height:20px;accent-color:var(--accent)}
+input[type=range]{width:100%;accent-color:var(--accent)}
+.pbtn{font:600 13px var(--display);border-radius:8px;padding:8px 10px;border:1px solid var(--line);background:var(--chip);color:var(--fg);cursor:pointer}
+.pbtn:hover{border-color:var(--accent)}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.sms{display:grid;gap:8px;max-height:240px;overflow:auto}
+.sms .m{background:var(--chip);border-radius:10px 10px 10px 2px;padding:8px 10px;font-size:12.5px;overflow-wrap:anywhere}
+.sms .m b{display:block;font-size:11px;color:var(--muted);font-weight:600;margin-bottom:2px}
+.note{font-size:12px;color:var(--muted)}
+.rail{display:flex;gap:4px;flex-wrap:wrap;justify-content:center;max-width:340px}
+.rail span{font:500 10.5px/1 var(--mono);padding:5px 7px;border-radius:999px;background:var(--chip);color:var(--muted)}
+.rail span.on{background:var(--accent);color:var(--surface)}
+
+/* phone */
+.col-phone{display:grid;gap:10px;justify-items:center}
+.phone{width:340px;max-width:100%;height:690px;background:#0c0e15;border-radius:38px;padding:10px;box-shadow:0 14px 36px rgba(15,20,40,.22)}
+.scr{position:relative;height:100%;background:var(--a-bg);border-radius:29px;overflow:hidden;font-family:var(--a-font);color:var(--a-fg);font-size:13px;line-height:1.4;display:flex;flex-direction:column}
+.sb{height:26px;display:flex;justify-content:space-between;align-items:end;padding:0 20px;font-size:11px;color:var(--a-muted);flex:none}
+.tb{display:flex;align-items:center;gap:10px;padding:10px 14px;font-weight:700;font-size:16px;flex:none}
+.ib{background:none;border:1px solid var(--a-line);width:30px;height:30px;border-radius:9px;cursor:pointer;display:grid;place-items:center;color:var(--a-fg);flex:none}
+.chev{width:8px;height:8px;border-left:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(45deg);margin-left:3px}
+.bc{margin-left:auto;font:800 10px/1.05 var(--a-font);color:#1d4fa8;text-align:left}
+.bc i{font-style:normal;color:#e86c1a;display:block}
+.view{flex:1;min-height:0;overflow:auto;display:flex;flex-direction:column}
+.pad{padding:12px 16px 16px;display:flex;flex-direction:column;gap:12px;flex:1}
+h3.t{font:800 20px/1.2 var(--a-font);margin:4px 0 2px}
+.abtn{font:700 15px var(--a-font);border:0;border-radius:12px;padding:14px;cursor:pointer;width:100%;color:#fff;background:var(--a-grad)}
+.abtn[disabled]{opacity:.35;cursor:default}
+.abtn.o{background:#fff;color:var(--a-blue);border:1.5px solid var(--a-blue)}
+.lnk{background:none;border:0;padding:0;color:var(--a-blue);font:700 13px var(--a-font);cursor:pointer}
+.muted{color:var(--a-muted)}
+.fld{border:1px solid #c9cedb;border-radius:12px;padding:7px 12px;display:grid;background:#fff}
+.fld:focus-within{border-color:var(--a-blue)}
+.fld label{font-size:11px;color:var(--a-muted)}
+.fld input,.fld select{border:0;outline:0;font:600 16px var(--a-font);color:var(--a-fg);padding:3px 0;background:transparent;width:100%}
+.lcd{background:linear-gradient(#5d5f63,#3f4145);border-radius:12px;padding:8px;display:grid;gap:3px}
+.lcd div{background:#c9cfbf;border-radius:6px;padding:4px 10px;text-align:center;font:400 30px/1.1 "Courier New",monospace;letter-spacing:.06em;color:#2a2e2a;transform:rotate(180deg)}
+.lcd small{color:#d6d9dc;text-align:center;font-size:8px;letter-spacing:.2em;transform:rotate(180deg)}
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.cards div{border:1px solid var(--a-line);border-radius:14px;padding:12px 8px;text-align:center;font-size:11px;color:var(--a-muted);box-shadow:0 2px 8px rgba(30,40,80,.05)}
+.cards b{display:block;color:var(--a-fg);font-size:13px;margin-bottom:2px}
+/* home */
+.hhead{background:linear-gradient(160deg,#f2a33a,#f07a1a);color:#fff;padding:12px 16px;display:flex;justify-content:space-between;align-items:center}
+.hhead b{font-size:18px}
+.vip{background:#fff3c4;color:#7a5200;font:800 11px var(--a-font);padding:5px 8px;border-radius:8px}
+.sec{margin:12px 12px 0;border:1px solid var(--a-line);border-radius:16px;padding:12px}
+.sec .h{display:flex;justify-content:space-between;align-items:center;font-weight:700;margin-bottom:10px}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px 4px}
+.tile{background:none;border:0;padding:4px 0;display:grid;justify-items:center;gap:5px;font:600 10.5px/1.2 var(--a-font);color:var(--a-fg);text-align:center;cursor:default}
+.tile i{width:34px;height:34px;border-radius:10px;border:1.5px solid #dfe3f0;display:grid;place-items:center;font-style:normal;font-size:15px;color:var(--a-red)}
+.tile.live{cursor:pointer}
+.tile.live i{border-color:var(--a-blue);box-shadow:0 0 0 3px rgba(41,56,151,.14);color:var(--a-blue)}
+.tag{font:800 8px var(--a-font);color:#a15c00;background:#ffe9b8;border-radius:4px;padding:1px 3px;margin-bottom:-4px}
+/* lists */
+.search{border:1px solid #c9cedb;border-radius:12px;padding:10px 12px;font:500 14px var(--a-font);width:100%;color:var(--a-fg)}
+.list{display:flex;flex-direction:column}
+.list button{background:none;border:0;border-bottom:1px solid var(--a-line);padding:12px 2px;text-align:left;font:500 14px var(--a-font);color:var(--a-fg);cursor:pointer;display:flex;gap:10px;align-items:center}
+.list button i{width:26px;height:26px;border-radius:50%;background:#fde9d6;display:grid;place-items:center;font-style:normal;font-size:12px;flex:none}
+.selst{background:var(--a-soft);margin:0 -16px;padding:10px 16px;display:flex;gap:10px;align-items:center}
+.selst b{display:block}
+.slab{font:700 12px var(--a-font);color:var(--a-muted);margin-top:4px}
+/* bill entry */
+.biller{display:flex;align-items:center;gap:10px;background:var(--a-soft);margin:0 -16px;padding:10px 16px}
+.biller i{width:32px;height:32px;border-radius:50%;background:#fde9d6;display:grid;place-items:center;font-style:normal}
+.biller b{flex:1;font-size:13px}
+.notebox{background:#fff7e3;border-radius:10px;padding:8px 10px;font-size:11.5px;color:#6b5100}
+.modes{display:flex;gap:10px}
+.modes label{flex:1;border:1.5px solid var(--a-line);border-radius:12px;padding:10px;display:flex;gap:8px;align-items:center;font-weight:700;cursor:pointer}
+.modes input{accent-color:var(--a-blue)}
+.rcpt{background:#fff7e3;border-radius:10px;padding:8px 10px;font-size:11.5px;display:flex;gap:8px;align-items:center}
+/* detail */
+.kv{display:grid;grid-template-columns:auto 1fr;gap:7px 12px;font-size:12.5px}
+.kv dt{color:var(--a-muted)}
+.kv dd{margin:0;font-weight:700;text-align:right;overflow-wrap:anywhere}
+.amtbox{border:1px solid var(--a-line);border-radius:14px;padding:12px;display:grid;gap:6px}
+.amtbox .big{display:flex;align-items:center;gap:4px;font:800 24px var(--a-font)}
+.amtbox .big input{border:0;outline:0;font:inherit;width:100%;color:var(--a-fg)}
+.amtbox small{color:var(--a-muted);font-size:11px}
+.foot{border-top:1px solid var(--a-line);padding:10px 16px 14px;display:flex;align-items:center;gap:12px;flex:none}
+.foot .tot{flex:1;font-size:11px;color:var(--a-muted)}
+.foot .tot b{display:block;font-size:17px;color:var(--a-fg)}
+.foot .abtn{width:auto;padding:12px 26px}
+/* overlays */
+.scrim{position:absolute;inset:0;background:rgba(14,17,28,.5);display:grid;align-items:end;z-index:5}
+.scrim.c{place-items:center;padding:22px}
+.sheet{background:#fff;border-radius:22px 22px 0 0;padding:16px;display:grid;gap:10px;max-height:92%;overflow:auto}
+.sheet h4{margin:0;font:800 16px var(--a-font)}
+.rows{display:grid;gap:7px;font-size:12.5px}
+.rows div{display:flex;justify-content:space-between;gap:10px}
+.rows div span:first-child{color:var(--a-muted)}
+.rows .sum{border-top:1px dashed var(--a-line);padding-top:8px;font-weight:800;font-size:14px}
+.rows .sum span:first-child{color:var(--a-fg)}
+.ccf{display:inline-flex;align-items:center;gap:4px;border:1px solid var(--a-line);border-radius:8px;padding:2px 6px}
+.ccf input{width:46px;border:0;outline:0;font:700 12.5px var(--a-font);text-align:right}
+.chk{display:flex;gap:8px;align-items:center;font-size:12px}
+.chk input{accent-color:var(--a-blue)}
+.dlg{background:#fff;border-radius:14px;padding:18px 16px 12px;display:grid;gap:12px;width:100%}
+.dlg p{margin:0}
+.dlg .row{display:flex;justify-content:flex-end;gap:16px}
+.loading{position:absolute;inset:0;background:rgba(255,255,255,.88);display:grid;place-items:center;z-index:4;text-align:center;font-weight:600}
+.spin{width:44px;height:44px;border-radius:50%;border:5px solid #dfe3f0;border-top-color:var(--a-blue);margin:0 auto 10px;animation:r 1s linear infinite}
+@keyframes r{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.spin{animation:none}}
+.toast{position:absolute;left:14px;right:14px;bottom:20px;background:#262a37;color:#fff;border-radius:10px;padding:10px 12px;font-size:12.5px;z-index:8}
+/* QR */
+.qr{width:180px;height:180px;margin:0 auto;background:
+  conic-gradient(from 90deg at 18px 18px,#000 25%,transparent 0) 0 0/36px 36px,#fff;border:10px solid #fff;outline:1px solid var(--a-line);border-radius:6px}
+/* receipt */
+.rh{padding:18px 16px 16px;color:#fff;display:grid;gap:4px}
+.rh.ok{background:var(--a-green)} .rh.pend{background:#e5a100} .rh.fail{background:var(--a-red)}
+.rh b{font-size:18px} .rh .amt{font:800 26px var(--a-font)}
+.share{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;text-align:center;font-size:10.5px;font-weight:700;color:var(--a-blue)}
+.share i{display:block;width:34px;height:34px;margin:0 auto 4px;border-radius:50%;background:var(--a-soft);border:1px solid var(--a-line);font-style:normal;line-height:32px}
+.navb{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--a-line);flex:none}
+.navb button{background:none;border:0;padding:10px 0 12px;font:700 11px var(--a-font);color:var(--a-blue);cursor:pointer}
+/* network */
+.log{display:grid;gap:10px}
+.entry{border:1px solid var(--line);border-radius:10px;background:var(--surface);overflow:hidden;min-width:0}
+.entry summary{list-style:none;cursor:pointer;display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:center;padding:9px 11px}
+.entry summary::-webkit-details-marker{display:none}
+.meth{font:600 11px var(--mono);color:var(--accent)}
+.path{font:500 12px var(--mono);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.st{font:600 11px var(--mono);padding:3px 7px;border-radius:6px;background:var(--chip)}
+.st.ok{color:var(--ok)} .st.bad{color:var(--err)} .st.pend{color:var(--warn)}
+.why{grid-column:1/-1;font-size:12px;color:var(--muted)}
+.io{display:grid;gap:8px;padding:0 11px 11px}
+.io h4{margin:0;font:600 11px var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+pre{margin:0;background:var(--code-bg);border:1px solid var(--line);border-radius:8px;padding:9px;font:12px/1.5 var(--mono);overflow-x:auto;color:var(--fg)}
+.k{color:var(--accent)} .s{color:var(--ok)} .n{color:var(--warn)}
+.logempty{color:var(--muted);font-size:13px;padding:6px 2px}
+</style>
+
+<div class="wrap">
+  <div class="top">
+    <div>
+      <h1>BBPS · Education Fees</h1>
+      <p>Clickable prototype of an adhikari paying a school fee for a parent, rebuilt from the Spice Money app (v6.6.62). The screens use the app's own text; every call goes to an in-page mock server with the real BBPS endpoint paths and field names. Institutes, students and amounts are samples, since the real ones come from the server.</p>
+    </div>
+    <div class="meta">category id 27 · BBPSServiceEnum.EDUCATION_FEES<br>responses simulated · no real network calls</div>
+  </div>
+
+  <div class="bench">
+    <div class="col">
+      <div class="panel">
+        <h2>Scenario</h2>
+        <div class="sw"><label for="enabled">BBPS enabled for this adhikari</label><input type="checkbox" id="enabled" checked></div>
+        <div class="ctl">
+          <label for="crit">Biller location rule (selectCriteria)</label>
+          <select id="crit">
+            <option value="cond2">State + City (cond2)</option>
+            <option value="cond1">State only (cond1)</option>
+            <option value="all">All India (all)</option>
+          </select>
+        </div>
+        <div class="ctl">
+          <label for="fetch">Fee lookup</label>
+          <select id="fetch">
+            <option value="due">Fee due (₹18,450)</option>
+            <option value="none">No fee due</option>
+          </select>
+        </div>
+        <div class="ctl">
+          <label for="amtType">Amount rule (amountType)</label>
+          <select id="amtType">
+            <option value="ABOVE">ABOVE: full fee or more</option>
+            <option value="BELOW">BELOW: part payment allowed</option>
+            <option value="RANGE">RANGE: min–max</option>
+          </select>
+        </div>
+        <div class="ctl">
+          <label for="bal">Adhikari wallet balance</label>
+          <select id="bal">
+            <option value="52000">₹52,000.00</option>
+            <option value="6200">₹6,200.00 (too low)</option>
+          </select>
+        </div>
+        <div class="ctl">
+          <label for="out">Final status from biller</label>
+          <select id="out">
+            <option value="000">Success</option>
+            <option value="001">Pending (001)</option>
+            <option value="301">Failed (301)</option>
+          </select>
+        </div>
+        <div class="ctl">
+          <label for="lat">Latency <span id="latv">700</span> ms</label>
+          <input type="range" id="lat" min="150" max="2500" step="50" value="700">
+        </div>
+        <button class="pbtn" id="reset" type="button">Restart journey</button>
+      </div>
+      <div class="panel">
+        <h2>Parent's phone</h2>
+        <div class="sms" id="sms"><span class="note">The bill receipt SMS sent to the customer's mobile number appears here.</span></div>
+      </div>
+    </div>
+
+    <div class="col-phone">
+      <div class="rail" id="rail">
+        <span data-s="home">1 Home</span><span data-s="mobile">2 Mobile</span><span data-s="state">3 Location</span><span data-s="biller">4 Institute</span><span data-s="entry">5 Student</span><span data-s="detail">7 Fee</span><span data-s="confirm">8 Confirm</span><span data-s="receipt">10 Receipt</span>
+      </div>
+      <div class="phone"><div class="scr" id="scr"></div></div>
+      <span class="note">Steps are numbered as in flow 09.</span>
+    </div>
+
+    <div class="col">
+      <div class="panel">
+        <h2>Network</h2>
+        <div class="log" id="log"><div class="logempty">API calls appear here as you use the app, newest first.</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  const $ = (s, r = document) => r.querySelector(s);
+  const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const inr = n => '₹' + Number(n).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const cfg = () => ({ enabled: $('#enabled').checked, crit: $('#crit').value, fetch: $('#fetch').value, amtType: $('#amtType').value, bal: +$('#bal').value, out: $('#out').value, lat: +$('#lat').value });
+  $('#lat').addEventListener('input', e => $('#latv').textContent = e.target.value);
+  const rid = (p, n) => p + Array.from({ length: n }, () => 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'[Math.floor(Math.random() * 32)]).join('');
+
+  // ---------- sample metadata (stands in for fetchmdmcategories / fetchbillermdm) ----------
+  const STATES = ['Delhi', 'Haryana', 'Karnataka', 'Maharashtra', 'Rajasthan', 'Tamil Nadu', 'Uttar Pradesh', 'West Bengal'];
+  const CITIES = { 'Uttar Pradesh': ['Ghaziabad', 'Greater Noida', 'Lucknow', 'Noida'], default: ['City A', 'City B'] };
+  const BILLERS = [
+    { id: 'SAMP00000EDU01', name: 'Sunrise Public School (sample)', params: [{ k: 'Student Unique ID', t: 'text', ph: 'e.g. SPS2041' }, { k: 'Date of Birth', t: 'date' }] },
+    { id: 'SAMP00000EDU02', name: 'Green Valley Convent School (sample)', params: [{ k: 'Admission Number', t: 'text', ph: 'e.g. 8812' }, { k: 'Class', t: 'select', opts: ['Nursery', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII'] }] },
+    { id: 'SAMP00000EDU03', name: 'City College of Commerce (sample)', params: [{ k: 'Enrolment Number', t: 'text', ph: 'e.g. CCC/24/1187' }] },
+  ];
+
+  // ---------- mock server: real BBPS paths ----------
+  const db = { fetchRef: null, polls: 0 };
+  const routes = {
+    'bbpsservices/fetchtopbillers/1.0/APP/{clientId}': req => ({ responseStatus: 'S', responseCode: '000', categoryId: '27', billers: BILLERS.map(b => ({ billerId: b.id, billerName: b.name, billFetchFlag: 'm', amountType: cfg().amtType, selectCriteria: cfg().crit, paymentMode: 'CASH|UPI' })) }),
+    'bbpswsapi/app/ws/fetchbill/v1/fb': req => (db.fetchRef = rid('FBR', 10), { responseStatus: 'S', responseCode: '000', responseDesc: 'Request accepted', fetchBillRefId: db.fetchRef }),
+    'bbpswsapi/app/ws/billresp/v1/pbr': req => cfg().fetch === 'none'
+      ? { responseStatus: 'F', responseCode: '301', responseDesc: 'No fee is due for this student at the moment.' }
+      : { responseStatus: 'S', responseCode: '000', bills: [{ customerName: 'AARAV SHARMA', billNumber: 'FEE/2026-27/T2/0412', billDate: '01 Oct 2026', dueDate: '31 Oct 2026', billAmount: '18450.00', billPeriod: 'Term 2 (Oct–Dec 2026)', amountType: cfg().amtType, minAmount: cfg().amtType === 'RANGE' ? '5000.00' : cfg().amtType === 'BELOW' ? '1.00' : '18450.00', maxAmount: cfg().amtType === 'ABOVE' ? '100000.00' : '18450.00', additionalInfo: { 'Fee Head': 'Tuition + Transport', 'Class': 'VII-B', 'Late fee after due date': '₹200' } }] },
+    'bbpswsapi/app/ws/convfee/v1/cf': req => ({ responseStatus: 'S', responseCode: '000', custConvFee: '30.00', bbpsPlatformFee: '0.00', retailerCommission: '6.00', gstCharges: '0.00', ccfSlabs: [{ upto: '10000', max: '20' }, { upto: '50000', max: '30' }] }),
+    'bbpswsapi/app/ws/paybill/v2/fpb': req => {
+      const total = +req.amount + +req.custConvFee;
+      if (cfg().bal < total) return { responseStatus: 'P', responseCode: 'SIB', responseDesc: 'Insufficient balance', balance: cfg().bal.toFixed(2) };
+      return { responseStatus: 'S', responseCode: '000', clientRefId: rid('SMB', 10) };
+    },
+    'bbpswsapi/app/ws/billresp/v2/pbr': req => {
+      const o = cfg().out;
+      if (o === '001') return { responseStatus: 'P', responseCode: '001', responseDesc: 'Payment is pending with the biller' };
+      if (o === '301') return { responseStatus: 'F', responseCode: '301', responseDesc: 'Payment failed at biller end. Amount will be reversed to wallet.' };
+      return { responseStatus: 'S', responseCode: '000', bConnectTxnId: rid('CC0', 13), approvalRefNo: rid('', 9), billerId: st.biller.id, txnDateTime: new Date().toLocaleString('en-IN') };
+    },
+  };
+  const why = {
+    'bbpsservices/fetchtopbillers/1.0/APP/{clientId}': 'Loads recent and top billers for the category (biller MDM is cached locally).',
+    'bbpswsapi/app/ws/fetchbill/v1/fb': 'Asks the biller for the student\'s fee. Returns a reference to poll.',
+    'bbpswsapi/app/ws/billresp/v1/pbr': 'Polls the fetch result (the app retries up to 3 times, about 20 s apart).',
+    'bbpswsapi/app/ws/convfee/v1/cf': 'Gets the customer convenience fee, platform fee and commission.',
+    'bbpswsapi/app/ws/paybill/v2/fpb': 'Pays the fetched bill from the adhikari wallet. No balance check happens before this call.',
+    'bbpswsapi/app/ws/billresp/v2/pbr': 'Polls the final payment status for the receipt.',
+  };
+
+  const logEl = $('#log');
+  function fmt(o) {
+    return esc(JSON.stringify(o, null, 2))
+      .replace(/(&quot;[^&]+?&quot;)(:)/g, '<span class="k">$1</span>$2')
+      .replace(/: (&quot;.*?&quot;)/g, ': <span class="s">$1</span>')
+      .replace(/: (true|false|-?\d+(\.\d+)?)/g, ': <span class="n">$1</span>');
+  }
+  function api(path, body) {
+    if (logEl.querySelector('.logempty')) logEl.innerHTML = '';
+    [...logEl.querySelectorAll('details')].forEach(x => x.open = false);
+    const d = document.createElement('details'); d.className = 'entry'; d.open = true;
+    d.innerHTML = `<summary><span class="meth">POST</span><span class="path">${esc(path)}</span><span class="st pend">…</span><span class="why">${esc(why[path] || '')}</span></summary><div class="io"><h4>Request · headers: auth token, device info</h4><pre>${fmt(body)}</pre><h4>Response</h4><pre class="resp">waiting…</pre></div>`;
+    logEl.prepend(d);
+    const t0 = performance.now();
+    return new Promise(res => setTimeout(() => {
+      const r = routes[path](body);
+      const ok = r.responseStatus === 'S';
+      const s = d.querySelector('.st');
+      s.textContent = `200 · ${Math.round(performance.now() - t0)}ms`; s.className = 'st ' + (ok ? 'ok' : r.responseStatus === 'P' ? 'pend' : 'bad');
+      d.querySelector('.resp').innerHTML = fmt(r);
+      res(r);
+    }, cfg().lat));
+  }
+  function sms(html) {
+    const box = $('#sms'); if (box.querySelector('.note')) box.innerHTML = '';
+    const m = document.createElement('div'); m.className = 'm';
+    m.innerHTML = `<b>BBPS (simulated) · ${new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</b>${html}`;
+    box.prepend(m);
+  }
+
+  // ---------- app ----------
+  const scr = $('#scr');
+  let st, toastT;
+  function init() { st = { screen: 'home', mobile: '', state: '', city: '', biller: null, params: {}, mode: 'CASH', bill: null, amount: '', fee: null, ccf: 30, overlay: null, busy: null, viewMore: false, q: '', receipt: null }; }
+  init();
+  const go = s => { st.screen = s; st.overlay = null; render(); };
+  function toast(m) { clearTimeout(toastT); scr.querySelector('.toast')?.remove(); const t = document.createElement('div'); t.className = 'toast'; t.setAttribute('role', 'status'); t.textContent = m; scr.appendChild(t); toastT = setTimeout(() => t.remove(), 3000); }
+  const sb = '<div class="sb"><span>11:52</span><span>5G ▮▮▮ 80%</span></div>';
+  const bc = '<span class="bc">Bharat<i>Connect</i></span>';
+  const tb = (back, title = '', logo = true) => `<div class="tb"><button class="ib" data-a="${back}" aria-label="Back"><span class="chev"></span></button>${title}${logo ? bc : ''}</div>`;
+  function rail() { const m = { home: 'home', mobile: 'mobile', state: 'state', city: 'state', biller: 'biller', entry: 'entry', detail: 'detail', receipt: 'receipt' }; const cur = st.overlay?.type === 'confirm' ? 'confirm' : m[st.screen]; document.querySelectorAll('#rail span').forEach(s => s.classList.toggle('on', s.dataset.s === cur)); }
+
+  function render() {
+    rail();
+    let h = '', foot = '';
+    const S = st.screen;
+    if (S === 'home') {
+      const base = [['📱', 'Mobile Prepaid'], ['🏦', 'Loan Repayment', 'Get Com..'], ['💡', 'Electricity'], ['📡', 'DTH'], ['🧾', 'Agent Collection'], ['💳', 'Credit Card'], ['🚗', 'FASTag', 'Get Com..'], ['🛣️', 'NHAI E-Notice', 'NEW']];
+      const more = [['🎓', 'Education Fees', '', 'edu'], ['🚰', 'Water'], ['🔥', 'Gas Pipeline'], ['🏘️', 'Housing Society'], ['🛡️', 'Life Insurance'], ['🏛️', 'Municipal Taxes'], ['📶', 'Broadband'], ['☎️', 'Landline']];
+      const tile = ([ic, n, tag, a]) => `<button class="tile ${a ? 'live' : ''}" ${a ? 'data-a="edu"' : 'tabindex="-1"'}>${tag ? `<span class="tag">${esc(tag)}</span>` : ''}<i>${ic}</i>${esc(n)}</button>`;
+      h = sb + `<div class="hhead"><div><small>Wallet Balance</small><br><b>${inr(cfg().bal)}</b></div><span class="vip">VIP</span></div><div class="view">
+        <div class="sec"><div class="h">Recharges and Bills <button class="lnk" data-a="more">${st.viewMore ? 'View Less ▴' : 'View More ▾'}</button></div>
+        <div class="grid4">${base.map(tile).join('')}${st.viewMore ? more.map(tile).join('') : ''}</div></div>
+        <div class="pad" style="flex:0"><span class="muted" style="font-size:11px;text-align:center">${st.viewMore ? 'Only Education Fees is live in this prototype.' : 'Education Fees sits under View More, as the server sends it.'}</span></div></div>`;
+    }
+    if (S === 'mobile') {
+      const ok = /^[6-9]\d{9}$/.test(st.mobile);
+      h = sb + tb('home') + `<div class="view"><div class="pad"><h3 class="t">Education Fees</h3>
+        ${st.mobile.length === 10 ? `<div class="lcd"><div>${esc(st.mobile.replace(/(\d{5})(\d{5})/, '$1 $2'))}</div><small>CUSTOMER DISPLAY</small></div>` : ''}
+        <div class="fld"><label for="mob">Customer Mobile Number</label><input id="mob" inputmode="numeric" maxlength="10" value="${esc(st.mobile)}" placeholder="0000000000" autocomplete="off"></div>
+        <button class="abtn" data-a="cont" ${ok ? '' : 'disabled'}>Continue</button>
+        <div class="cards"><div><b>History</b>View your transaction history</div><div><b>Earnings</b>Track Daily, Weekly, and Monthly Business Growth</div><div><b>Commissions</b>Check how much you can earn from clients</div><div><b>Help</b>View tutorials, FAQs or contact support</div></div></div></div>`;
+    }
+    if (S === 'state' || S === 'city') {
+      const items = S === 'state' ? STATES : (CITIES[st.state] || CITIES.default);
+      const f = items.filter(x => x.toLowerCase().includes(st.q.toLowerCase()));
+      h = sb + tb(S === 'state' ? 'mobile' : 'state', S === 'state' ? 'Select State' : 'Select City') + `<div class="view"><div class="pad">
+        <input class="search" id="q" placeholder="Search ${S === 'state' ? 'State' : 'City'}" value="${esc(st.q)}" aria-label="Search">
+        ${S === 'state' ? '<button class="lnk" data-a="gps" style="text-align:left">◎ Use current location</button>' : ''}
+        <div class="list">${f.map(x => `<button data-a="pick" data-v="${esc(x)}">${esc(x)}</button>`).join('') || '<p class="muted">No States Found</p>'}</div></div></div>`;
+    }
+    if (S === 'biller') {
+      const f = BILLERS.filter(b => b.name.toLowerCase().includes(st.q.toLowerCase()));
+      const where = cfg().crit === 'all' ? 'All India' : cfg().crit === 'cond2' ? `${st.city}, ${st.state}` : st.state;
+      h = sb + tb(cfg().crit === 'all' ? 'mobile' : cfg().crit === 'cond2' ? 'city' : 'state', 'Select Biller') + `<div class="view"><div class="pad">
+        <div class="selst"><span>📍</span><div style="flex:1"><b>${esc(where.toUpperCase())}</b><span class="muted" style="font-size:11px">Selected State</span></div>${cfg().crit === 'all' ? '' : '<button class="lnk" data-a="chgstate">Change</button>'}</div>
+        <input class="search" id="q" placeholder="Search an operator" value="${esc(st.q)}" aria-label="Search an operator">
+        <div class="slab">Billers</div>
+        <div class="list">${f.map((b, i) => `<button data-a="biller" data-i="${BILLERS.indexOf(b)}"><i>🎓</i>${esc(b.name)}</button>`).join('') || '<p class="muted">No biller found</p>'}</div></div></div>`;
+    }
+    if (S === 'entry') {
+      const b = st.biller;
+      const fields = b.params.map((p, i) => {
+        const v = esc(st.params[p.k] || '');
+        if (p.t === 'select') return `<div class="fld"><label for="p${i}">${esc(p.k)}</label><select id="p${i}" data-k="${esc(p.k)}"><option value="">Select</option>${p.opts.map(o => `<option ${st.params[p.k] === o ? 'selected' : ''}>${o}</option>`).join('')}</select></div>`;
+        return `<div class="fld"><label for="p${i}">${esc(p.k)}</label><input id="p${i}" data-k="${esc(p.k)}" type="${p.t === 'date' ? 'date' : 'text'}" value="${v}" placeholder="${esc(p.ph || '')}" autocomplete="off"></div>`;
+      }).join('');
+      h = sb + tb('biller-change', '') + `<div class="view"><div class="pad">
+        <div class="biller"><i>🎓</i><b>${esc(b.name)}</b><button class="lnk" data-a="biller-change">Change</button></div>
+        <b>Customer Details</b>${fields}
+        <div class="rcpt">ⓘ <span>Bill Receipt will be sent on <b>${esc(st.mobile)}</b> <button class="lnk" data-a="mobile">Change</button></span></div>
+        <div class="notebox"><b>Note : </b>Please check the old bill of customer and validate all details before proceeding</div>
+        <b>Payment Mode</b>
+        <div class="modes"><label><input type="radio" name="pm" value="CASH" ${st.mode === 'CASH' ? 'checked' : ''}> Cash</label><label><input type="radio" name="pm" value="UPI" ${st.mode === 'UPI' ? 'checked' : ''}> UPI</label></div>
+        <button class="abtn" data-a="fetch" id="fetchBtn">Fetch bill details &gt;</button></div></div>`;
+    }
+    if (S === 'detail') {
+      const bl = st.bill, a = +st.amount || 0;
+      h = sb + tb('entry', '') + `<div class="view"><div class="pad">
+        <div class="biller"><i>🎓</i><b>${esc(st.biller.name)}</b></div>
+        <dl class="kv"><dt>Customer Name</dt><dd>${esc(bl.customerName)}</dd><dt>Customer Mobile Number</dt><dd>${esc(st.mobile)}</dd><dt>Bill Number</dt><dd>${esc(bl.billNumber)}</dd><dt>Due Date</dt><dd>${esc(bl.dueDate)}</dd><dt>Bill Amount</dt><dd>${inr(bl.billAmount)}</dd></dl>
+        <details><summary class="lnk" style="list-style:none;cursor:pointer">View More ▾</summary><dl class="kv" style="margin-top:8px"><dt>Bill Period</dt><dd>${esc(bl.billPeriod)}</dd>${Object.entries(bl.additionalInfo).map(([k, v]) => `<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join('')}</dl></details>
+        <div class="amtbox"><span class="muted" style="font-size:12px">Amount</span><div class="big">₹<input id="amt" inputmode="decimal" value="${esc(st.amount)}" aria-label="Amount to pay"></div>
+          <small>Minimum Allowed ${inr(bl.minAmount)} · Maximum Allowed ${inr(bl.maxAmount)}</small></div>
+        <b style="font-size:12px">PAYMENT MODE</b><div class="modes"><label><input type="radio" name="pm2" value="CASH" ${st.mode === 'CASH' ? 'checked' : ''}> Cash</label><label><input type="radio" name="pm2" value="UPI" ${st.mode === 'UPI' ? 'checked' : ''}> UPI</label></div>
+        </div></div>`;
+      foot = `<div class="foot"><div class="tot">Total Payable<b id="totp">${inr(a)}</b></div><button class="abtn" data-a="pay">${st.mode === 'UPI' ? 'Generate QR' : 'Pay'}</button></div>`;
+    }
+    if (S === 'receipt') {
+      const r = st.receipt, tot = +st.amount + st.ccf;
+      if (!r) h = sb + `<div class="view" style="justify-content:center;align-items:center;text-align:center"><div><div class="spin"></div><b>Processing Payment</b><p class="muted">Please do not close this page</p></div></div>`;
+      else {
+        const cls = r.responseCode === '000' ? 'ok' : r.responseCode === '001' ? 'pend' : 'fail';
+        const title = cls === 'ok' ? 'Bill Payment Successful' : cls === 'pend' ? 'Pending' : 'Payment Failed';
+        h = sb + `<div class="view"><div class="rh ${cls}"><b>${title}</b><span class="amt">${inr(tot)}</span><small>Inc all taxes${cls !== 'ok' ? ' · ' + esc(r.responseDesc) : ''}</small></div><div class="pad">
+          <b>Details</b><dl class="kv"><dt>Customer Name</dt><dd>${esc(st.bill.customerName)}</dd><dt>Customer Mobile Number</dt><dd>${esc(st.mobile)}</dd>
+          ${cls === 'ok' ? `<dt>B-Connect Txn ID</dt><dd>${esc(r.bConnectTxnId)}</dd><dt>Approval/Biller reference no</dt><dd>${esc(r.approvalRefNo)}</dd>` : ''}
+          <dt>Biller ID</dt><dd>${esc(st.biller.id)}</dd><dt>Consumer ID</dt><dd>${esc(Object.values(st.params)[0] || '')}</dd><dt>Payment Mode</dt><dd>${st.mode === 'UPI' ? 'UPI' : 'Cash'}</dd><dt>Bill Number</dt><dd>${esc(st.bill.billNumber)}</dd><dt>Bill amount</dt><dd>${inr(st.amount)}</dd><dt>Conv. Fee</dt><dd>${inr(st.ccf)}</dd><dt>Biller Platform Fee (Digital Fee)</dt><dd>${inr(0)}</dd><dt>Total Amount</dt><dd>${inr(tot)}</dd></dl>
+          ${cls === 'ok' ? '<b>Customer Receipt</b><div class="share"><div><i>💬</i>WhatsApp<br><span class="muted">Free</span></div><div><i>↗</i>Share</div><div><i>⤓</i>Download</div><div><i>🖨</i>Print</div></div>' : cls === 'fail' ? '<button class="abtn" data-a="retry">Try Again</button>' : '<p class="muted" style="font-size:12px">Check the final status in History.</p>'}
+          </div></div><div class="navb"><button data-a="newbill">New Bill</button><button data-a="noop">History</button><button data-a="noop">Help</button><button data-a="home">Home</button></div>`;
+      }
+    }
+    scr.innerHTML = h + foot + overlay();
+    wire();
+  }
+
+  function overlay() {
+    const o = st.overlay;
+    if (st.busy) return `<div class="loading"><div><div class="spin"></div>${esc(st.busy)}</div></div>`;
+    if (!o) return '';
+    if (o.type === 'alert') return `<div class="scrim c"><div class="dlg"><p>${esc(o.msg)}</p><div class="row"><button class="lnk" data-a="${o.next || 'close'}">OK</button></div></div></div>`;
+    if (o.type === 'confirm') {
+      const f = st.fee, a = +st.amount, tot = a + st.ccf + +f.bbpsPlatformFee + +f.gstCharges;
+      return `<div class="scrim"><div class="sheet"><h4>Confirm bill payment of ${inr(tot)}</h4>
+        <div class="rows"><div><span>Customer name</span><span>${esc(st.bill.customerName)}</span></div><div><span>Mobile Number</span><span>${esc(st.mobile)}</span></div><div><span>Payment Mode</span><span>${st.mode === 'UPI' ? 'UPI' : 'Cash'}</span></div>
+        <div><span>Bill Amount</span><span>${inr(a)}</span></div><div><span>Biller Platform Fee (Digital Fee)</span><span>${inr(f.bbpsPlatformFee)}</span></div>
+        <div><span>Customer convenience fee <button class="lnk" data-a="slab" style="font-size:11px">View CCF Slab</button></span><span class="ccf">₹<input id="ccf" inputmode="numeric" value="${st.ccf}" aria-label="Customer convenience fee"></span></div>
+        <div><span>Retailer Commission</span><span style="color:#00733c">+ ${inr(f.retailerCommission)}</span></div><div><span>Gst Charges</span><span>${inr(f.gstCharges)}</span></div>
+        <div class="sum"><span>Total customer pays</span><span id="tcp">${inr(tot)}</span></div></div>
+        <button class="lnk" data-a="noop" style="text-align:left">APPLY COUPON</button>
+        <label class="chk"><input type="checkbox"> Enable for all future payments</label>
+        <button class="abtn" data-a="confirm">Confirm</button></div></div>`;
+    }
+    if (o.type === 'qr') return `<div class="scrim"><div class="sheet" style="text-align:center"><h4>Customer QR</h4><span class="muted">Bill Amount ${inr(+st.amount + st.ccf)}</span><div class="qr" role="img" aria-label="Sample UPI QR"></div><span class="muted" style="font-size:12px">Valid for 04:59 · Checking payment status...</span><button class="abtn" data-a="upipaid">Simulate: parent paid by UPI</button><button class="abtn o" data-a="close">Back</button></div></div>`;
+    if (o.type === 'lowbal') return `<div class="scrim"><div class="sheet"><h4>Low Wallet Balance</h4><p style="margin:0">Add ${inr(o.short)} to your wallet to complete this payment.</p><button class="abtn" data-a="addbal">Add ${inr(o.short)} balance</button><button class="abtn o" data-a="close">Cancel</button></div></div>`;
+    if (o.type === 'slab') return `<div class="scrim c"><div class="dlg"><b>CCF Slab</b><div class="rows"><div><span>Up to ₹10,000</span><span>max ₹20</span></div><div><span>₹10,001 – ₹50,000</span><span>max ₹30</span></div></div><div class="row"><button class="lnk" data-a="backconfirm">OK</button></div></div></div>`;
+    return '';
+  }
+
+  // ---------- behaviour ----------
+  function minMaxOk(a) {
+    const b = st.bill, mn = +b.minAmount, mx = +b.maxAmount;
+    if (!a || a <= 0) return 'Please enter amount';
+    if (b.amountType === 'ABOVE' && a < +b.billAmount) return `Amount entered should be equal or greater than ${inr(b.billAmount)}`;
+    if (b.amountType === 'BELOW' && a > +b.billAmount) return `Amount entered should be equal or less than ${inr(b.billAmount)}`;
+    if (a < mn || a > mx) return `Amount should be in between ${inr(mn)} and ${inr(mx)}`;
+    return null;
+  }
+  async function doFetch() {
+    const missing = st.biller.params.find(p => !st.params[p.k]);
+    if (missing) { toast(`Please enter ${missing.k}`); return; }
+    st.busy = 'Getting Bill, Please wait!'; render();
+    const billerParam = Object.entries(st.params).map(([k, v]) => ({ name: k, value: v }));
+    await api('bbpswsapi/app/ws/fetchbill/v1/fb', { billerId: st.biller.id, categoryId: '27', billerParam, customerMobileNo: st.mobile, paymentMode: st.mode, otpId: '', responseType: 'SYNC' });
+    const r = await api('bbpswsapi/app/ws/billresp/v1/pbr', { fetchBillRefId: db.fetchRef, billerId: st.biller.id });
+    st.busy = null;
+    if (r.responseStatus !== 'S') { st.overlay = { type: 'alert', msg: r.responseDesc, next: 'close' }; render(); return; }
+    st.bill = r.bills[0]; st.amount = st.bill.billAmount; go('detail');
+  }
+  async function doPayStart() {
+    const err = minMaxOk(+st.amount); if (err) { toast(err); return; }
+    st.busy = 'Please wait…'; render();
+    st.fee = await api('bbpswsapi/app/ws/convfee/v1/cf', { billerId: st.biller.id, amount: (+st.amount).toFixed(2), paymentMode: st.mode, categoryId: '27' });
+    st.ccf = +st.fee.custConvFee; st.busy = null; st.overlay = { type: 'confirm' }; render();
+  }
+  async function doPay(pgOrderId) {
+    st.overlay = null; st.busy = 'Processing payment, Please wait!'; render();
+    const r = await api('bbpswsapi/app/ws/paybill/v2/fpb', { fetchBillRefId: db.fetchRef, billerId: st.biller.id, amount: (+st.amount).toFixed(2), custConvFee: st.ccf.toFixed(2), couponCode: '', paymentMode: st.mode, customerMobileNo: st.mobile, ccfTransFlag: 'N', pgOrderId: pgOrderId || '' });
+    st.busy = null;
+    if (r.responseStatus === 'P' && r.responseCode === 'SIB') { const short = (+st.amount + st.ccf) - +r.balance; st.overlay = { type: 'lowbal', short }; render(); return; }
+    st.receipt = null; go('receipt');
+    const rr = await api('bbpswsapi/app/ws/billresp/v2/pbr', { clientRefId: r.clientRefId, billerId: st.biller.id });
+    st.receipt = rr; render();
+    if (rr.responseCode === '000') sms(`Payment of ${inr(+st.amount)} received for ${esc(st.biller.name)} (Bill ${esc(st.bill.billNumber)}). B-Connect Txn ID ${esc(rr.bConnectTxnId)}. Thank you for using Bharat BillPay.`);
+  }
+
+  const A = {
+    home() { init(); render(); },
+    more() { st.viewMore = !st.viewMore; render(); },
+    edu() { if (!cfg().enabled) { st.overlay = { type: 'alert', msg: 'Dear Agent. BBPS is currently unavailable in your log-in. Please contact our customer care to understand the process of activation.' }; render(); return; } st.q = ''; go('mobile'); },
+    close() { st.overlay = null; render(); },
+    mobile() { go('mobile'); },
+    cont() {
+      if (!/^[6-9]\d{9}$/.test(st.mobile)) { toast('Mobile number must start with 9, 8, 7, or 6 (cannot start with 0)'); return; }
+      st.q = ''; const c = cfg().crit;
+      if (c === 'all') { loadBillers(); } else go('state');
+    },
+    gps() { st.state = 'Uttar Pradesh'; toast('Location detected: Uttar Pradesh'); afterState(); },
+    pick(el) { if (st.screen === 'state') { st.state = el.dataset.v; afterState(); } else { st.city = el.dataset.v; st.q = ''; loadBillers(); } },
+    state() { st.q = ''; go('state'); }, city() { st.q = ''; go('city'); }, chgstate() { st.q = ''; go('state'); },
+    biller(el) { st.biller = BILLERS[+el.dataset.i]; st.params = {}; go('entry'); },
+    'biller-change'() { st.q = ''; go('biller'); },
+    fetch: doFetch,
+    entry() { go('entry'); },
+    pay() { doPayStart(); },
+    confirm() { if (st.mode === 'UPI') { st.overlay = { type: 'qr' }; render(); } else doPay(); },
+    upipaid() { doPay(rid('PG', 12)); },
+    slab() { st.overlay = { type: 'slab' }; render(); },
+    backconfirm() { st.overlay = { type: 'confirm' }; render(); },
+    addbal() { st.overlay = null; render(); toast('Opens Wallet → Add Money (flow 06)'); },
+    retry() { go('entry'); },
+    newbill() { const m = st.mobile; init(); st.mobile = m; go('mobile'); },
+    noop() { toast('Not part of this prototype'); },
+  };
+  function afterState() { st.q = ''; if (cfg().crit === 'cond2') go('city'); else loadBillers(); }
+  async function loadBillers() {
+    st.busy = 'Loading...'; render();
+    await api('bbpsservices/fetchtopbillers/1.0/APP/{clientId}', { categoryId: '27', state: st.state || 'ALL', city: st.city || '', clientId: 'SMA-APP' });
+    st.busy = null; go('biller');
+  }
+
+  function wire() {
+    scr.querySelectorAll('[data-a]').forEach(el => el.addEventListener('click', e => { e.preventDefault(); const f = A[el.dataset.a]; f && f(el); }));
+    const mob = $('#mob');
+    if (mob) { mob.addEventListener('input', () => { mob.value = mob.value.replace(/\D/g, '').replace(/^0+/, '').slice(0, 10); const was = st.mobile.length; st.mobile = mob.value; if ((was === 10) !== (st.mobile.length === 10)) { render(); const m = $('#mob'); m.focus(); m.setSelectionRange(m.value.length, m.value.length); } else { const b = scr.querySelector('[data-a="cont"]'); if (b) b.disabled = !/^[6-9]\d{9}$/.test(st.mobile); } }); if (!st.overlay && !st.busy) mob.focus(); }
+    const q = $('#q'); if (q) q.addEventListener('input', () => { st.q = q.value; const pos = q.selectionStart; render(); const n = $('#q'); n.focus(); n.setSelectionRange(pos, pos); });
+    scr.querySelectorAll('[data-k]').forEach(i => i.addEventListener('input', () => { st.params[i.dataset.k] = i.value; }));
+    scr.querySelectorAll('input[name="pm"],input[name="pm2"]').forEach(r => r.addEventListener('change', () => { st.mode = r.value; if (st.screen === 'detail') render(); }));
+    const amt = $('#amt'); if (amt) amt.addEventListener('input', () => { amt.value = amt.value.replace(/[^\d.]/g, ''); st.amount = amt.value; $('#totp').textContent = inr(+st.amount || 0); });
+    const ccf = $('#ccf'); if (ccf) ccf.addEventListener('input', () => { ccf.value = ccf.value.replace(/\D/g, '').slice(0, 3); st.ccf = Math.min(+ccf.value || 0, 30); const f = st.fee; $('#tcp').textContent = inr(+st.amount + st.ccf + +f.bbpsPlatformFee + +f.gstCharges); });
+  }
+
+  $('#reset').addEventListener('click', () => { init(); logEl.innerHTML = '<div class="logempty">API calls appear here as you use the app, newest first.</div>'; $('#sms').innerHTML = '<span class="note">The bill receipt SMS sent to the customer\'s mobile number appears here.</span>'; render(); });
+  ['#crit', '#enabled'].forEach(s => $(s).addEventListener('change', () => { if (st.screen !== 'home') { init(); render(); } }));
+  render();
+})();
+</script>
