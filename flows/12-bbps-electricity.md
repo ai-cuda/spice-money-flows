@@ -21,7 +21,11 @@
   The prototype uses these real board names and field labels. Bills and amounts are made up.
 - **Location rule seen live:** Select State → Select Biller (state only, `cond1`). ✅ live
 - **Campaign offer strip on the mobile-entry screen:** when `CAMPAIGN_FLAG = Y`, the category "Electricity" maps to the offer key `bbps_electricity_offer` (`BBPSMobileEntryActivity.onAddaPollItemClickListener`). ✅ code / ⬛ offer content. Not in the prototype.
-- **Milestone cashback on the receipt** (for all BBPS billers, with electricity-specific campaign fields). ✅
+- **Milestone cashback: two versions in the code, only the older one can still run (verified in bytecode, 13 Oct).**
+  - **Newer card ("Milestone based rewards", `commision-cashback/api/milestones`):** dead in v6.6.62. Its switch `bbpsCBMilestoneCommFlag` is read in `BBPSPaymentReceiptActivity` (~L584, ~L856), but no code anywhere in the APK writes it. The only bytecode references are the receipt (classes7) and the `Constants` definition (classes8). The login-settings loop in `DashboardActivityRevamp` saves each server key by explicit name, with no catch-all. So the preference is always empty and the card never appears.
+  - **Older cashback timeline (`fetchCashbackDetails/v1/fcd`):** still wired. The login-settings loop saves server key `bbpsOfferMilesones` (bytecode `putString("bbpsOfferMilesones", value)`). When it is `Y`, the receipt calls the API and shows a cashback timeline (`rvTimeline`) and the "earned" dialog. Whether the server still sends `Y` can't be seen from the APK ⬛.
+  - **Tech's statement that "milestone was removed":** consistent with this. The newer card can't run in this build, and the older one is off unless the server sends `bbpsOfferMilesones=Y`.
+- **Milestone cashback on the receipt (newer card, details as coded)** (for all BBPS billers, with electricity-specific campaign fields). ✅
   - **Shown when:** after a successful payment, if HomeINIT `bbpsCBMilestoneCommFlag = Y` and the biller `isBBPS = Y`.
   - **Call:** the app calls `https://bbps.spicemoney.com/commision-cashback/api/milestones` with `{categoryId, categoryName}`.
   - **On `responseCode 00` with milestones:**
