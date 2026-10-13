@@ -16,6 +16,7 @@ The seven priority journeys in Spice Money v6.6.62, traced screen by screen from
 | 08 | [Axis savings Re-KYC](08-axis-rekyc.md) | Tile `axis_rekyc` | 13 | storyboard in `storyboards/axis-rekyc.html` |
 | 09 | [Bill payment: Education Fees](09-bbps-education-fees.md) | Recharges and Bills → View More → Education Fees (category 27) | 10 | prototype in `prototypes/bbps-education-fees-prototype.html` |
 | 10 | [Bill payment: Loan Repayment, single and bulk](10-bbps-loan-repayment.md) | Recharges and Bills → Loan Repayment (category 23) | 9 + 30 | prototype in `prototypes/bbps-loan-repayment-prototype.html`, 86 screenshots in `captures/prototype/10-loan-repayment/` |
+| 11 | [AePS: NSDL eKYC onboarding (KO and Sub-KO)](11-nsdl-aeps-onboarding.md) | AePS tile when the NSDL eKYC mandate is on; AePS menu → Manage Staff; Account → KYC status | 24 | prototype in `prototypes/aeps-nsdl-onboarding-prototype.html`, 61 screenshots in `captures/prototype/11-nsdl-aeps-onboarding/` |
 
 ## How the app is put together (common to all flows)
 
@@ -28,6 +29,7 @@ The seven priority journeys in Spice Money v6.6.62, traced screen by screen from
 
 These are confirmed in code unless marked 🟡. Each one is a hypothesis to validate in live capture, not a verdict.
 
+1. **NSDL AePS onboarding asks for no documents.** The adhikari only verifies the mobile, PAN and shop address already on file, then does an Aadhaar fingerprint eKYC on an L1 device. On the KO screen the Doc type isn't preselected, so "Scan finger" silently does nothing until it is picked, and pressing back on the mandatory screen still lets AePS open. *(flow 11)*
 1. **AePS: pending withdrawals look like failures.** A pending (`UNK`) withdrawal shows the same red "Transaction Failed / Retry Again" popup as a real failure, and nothing checks the status afterwards. That invites retries and possible double payouts. *(Spot-checked: `NewAepsRevampFragment.showBalDialog`.)*
 2. **BBPS: no balance check before paying.** The pay call itself fails with `SIB`, and only then does the app show "Add ₹X balance". Bill fetch and the receipt can each poll for up to about a minute. *(Spot-checked.)*
 3. **Wallet top-up by UPI trusts the customer's UPI app.** The result screen relies on what the UPI app reports back, with no server status check, unlike the legacy flow. Paying by scanning from another phone gives no callback at all. 🟡 where the classes did not decompile.

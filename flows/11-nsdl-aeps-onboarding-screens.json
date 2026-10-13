@@ -1,0 +1,1212 @@
+[
+ {
+  "id": "entry-aeps-tile-gate",
+  "path": "entry",
+  "screen_class": "ServiceActionHandler.hitNSDLEkycMandatePOPUp (no UI of its own)",
+  "layout": "—",
+  "title": "",
+  "texts": [],
+  "fields": [],
+  "buttons": [],
+  "api": [],
+  "next": [
+   {
+    "to": "ekyc-hub",
+    "condition": "AePS tile AEPS_CW/BE/CD/MINI/STLM; O0()=='NA'; YBL mandate (C1) not Y; EKYC_MANDATE_NSDL field1 == Y. Extras: mode=field3, autoTrigger=true, skipFlag=N, serviceName=<tile> unless field2 == Y"
+   },
+   {
+    "to": "aeps (flow 03)",
+    "condition": "EKYC_MANDATE_NSDL field1 != Y"
+   }
+  ],
+  "notes": "HomeINIT key 'NSDLekycMandatepopup' -> pref EKYC_MANDATE_NSDL = 'Y|<resume>|<mode>'. If the pref has no '|', B1() returns (true,true) but the popup method does nothing, so the tile tap is a silent no-op."
+ },
+ {
+  "id": "ekyc-hub",
+  "path": "entry",
+  "screen_class": "spice.mudra.yblekyc.activity.EKYCModuleActivity",
+  "layout": "ekyc_module_activity + ekyc_module_item",
+  "title": "Do eKYC",
+  "texts": [
+   "Do eKYC",
+   "Do your eKYC on respective banks and start using Spice Money services",
+   "<per module: moduleName, moduleSubTitle, moduleImage; green tick when moduleStatus=C>"
+  ],
+  "fields": [],
+  "buttons": [
+   "<module row: NSDL>",
+   "back",
+   "bot FAB (when enabled)"
+  ],
+  "api": [
+   {
+    "method": "POST",
+    "path": "https://dmt.spicemoney.com/scommyblekyc/ws/agent/homeInit/v1",
+    "request_fields": [
+     "reqFor=DASHBOARD"
+    ],
+    "response_fields_used": [
+     "dashboardDtls[].moduleCode",
+     "moduleName",
+     "moduleSubTitle",
+     "moduleImage",
+     "moduleStatus",
+     "moduleAccessibility",
+     "moduleMessage",
+     "configFlags.updateAgentDet",
+     "footerData"
+    ]
+   }
+  ],
+  "next": [
+   {
+    "to": "ko-details",
+    "condition": "autoTrigger && mode == NSDL (opened for result, extras serviceName + skipFlag)"
+   },
+   {
+    "to": "ko-details",
+    "condition": "tap NSDL row and moduleAccessibility == Y"
+   },
+   {
+    "to": "toast/alert moduleMessage",
+    "condition": "tap NSDL row and moduleAccessibility != Y"
+   }
+  ],
+  "notes": "Also reached by deep link 'ekycAll'. The same module list appears under Account settings -> KYC status (AccountSettingActivity). On RESULT_OK from the KO screen the hub finishes and passes serviceName back to the AePS caller."
+ },
+ {
+  "id": "ko-skip-popup",
+  "path": "entry",
+  "screen_class": "TransactionCashWithdrawalRevamp.showKOonboardingDialog (same in TransactionCashDepositRevamp, TransactionConfirmationEkyc)",
+  "layout": "ko_skip_dialog",
+  "title": "<skipPopupData[0]>",
+  "texts": [
+   "<skipPopupData[0] title>",
+   "<skipPopupData[1] description>"
+  ],
+  "fields": [],
+  "buttons": [
+   "<skipPopupData[2] e.g. Get started>",
+   "<skipPopupData[3] e.g. Skip> (only if aeps_ko_skip == Y)"
+  ],
+  "api": [
+   {
+    "method": "POST",
+    "path": "https://nsdlekyc.spicemoney.com/nsdlkosubko/ws/skip/nsdl/v1",
+    "request_fields": [
+     "common body (CommonUtility.Y) + clientId; headers mode=APP, lang, token, clientId, bcAgentId"
+    ],
+    "response_fields_used": [
+     "rs",
+     "rd"
+    ]
+   }
+  ],
+  "next": [
+   {
+    "to": "ko-details",
+    "condition": "primary button; success screen finishes"
+   },
+   {
+    "to": "dismiss",
+    "condition": "Skip -> POST skip/nsdl/v1"
+   }
+  ],
+  "notes": "Shown on AePS success screens when pref skip_popup_visibility == Y (reset to N once shown). All copy comes from the server ('title|desc|btn1|btn2'); the layout has no defaults."
+ },
+ {
+  "id": "manage-staff-empty",
+  "path": "entry",
+  "screen_class": "spice.mudra.nsdlekyc.subKO.view.ManageStaffFragment (AePS tab 'Manage Staff')",
+  "layout": "fragment_manage_staff",
+  "title": "Manage Staff",
+  "texts": [
+   "Add staff members to make business easy",
+   "Do NSDL eKYC, you will be able to add your staff members and they can login on your behalf and also do Two factor authentication"
+  ],
+  "fields": [],
+  "buttons": [
+   "Proceed to eKYC"
+  ],
+  "api": [
+   {
+    "method": "POST",
+    "path": "https://nsdlekyc.spicemoney.com/nsdlkosubko/ws/subko/dtls/v1",
+    "request_fields": [
+     "common body (CommonUtility.Y) + clientId; headers mode=APP, lang, token, clientId, bcAgentId"
+    ],
+    "response_fields_used": [
+     "rs",
+     "rd",
+     "payload.subKoDetails[]",
+     "payload.subkoIdLimit",
+     "payload.parentPidDtls"
+    ]
+   }
+  ],
+  "next": [
+   {
+    "to": "ko-details",
+    "condition": "subKoDetails empty and local pref subkoflow != Y (isFromAEPS=true)"
+   },
+   {
+    "to": "manage-staff-list",
+    "condition": "subKoDetails non-empty or subkoflow == Y"
+   }
+  ],
+  "notes": "The tab exists only when HomeINIT NSDL_EKYC == Y (NewAepsActivity / NewAepsContainerActivity 'manage_staff'). KO-done detection uses the device-local pref 'subkoflow'."
+ },
+ {
+  "id": "ko-details",
+  "path": "ko",
+  "screen_class": "spice.mudra.nsdlekyc.ko.view.NSDLeKYCVerification (step 1)",
+  "layout": "activity_nsdl_ekycverification (+ layout_nsdl_stepper, layout_nsdl_ekyc_benefit, toolbar_spice_white, loading_state)",
+  "title": "NSDL eKYC",
+  "texts": [
+   "NSDL eKYC",
+   "1",
+   "Detail Verification",
+   "2",
+   "Aadhaar Verification",
+   "<server name>",
+   "Adhikari ID: <clientId>",
+   "Mobile Number",
+   "<mbNo>",
+   "Trying to auto read OTP (hidden)",
+   "Verify",
+   "Verified",
+   "PAN Number",
+   "<panNo, decrypted if encryptPanFlag=Y>",
+   "Verify",
+   "Verified",
+   "Shop Address",
+   "<shopAddr>",
+   "Confirm",
+   "Confirmed",
+   "Proceed to Aadhaar Verification",
+   "BENEFITS OF eKYC",
+   "<iconDtls[0..2].text from server>",
+   "Powered by",
+   "Help"
+  ],
+  "fields": [],
+  "buttons": [
+   "Verify (mobile)",
+   "Verify (PAN; enabled after mobile verified)",
+   "Confirm (address; enabled after PAN verified)",
+   "Proceed to Aadhaar Verification (enabled after address confirmed)",
+   "Help",
+   "back",
+   "bot FAB (aepsBot == Y)"
+  ],
+  "api": [
+   {
+    "method": "POST",
+    "path": "https://nsdlekyc.spicemoney.com/nsdlkosubko/ws/init/v1",
+    "request_fields": [
+     "common body (CommonUtility.Y) + clientId; headers mode=APP, lang, token, clientId, bcAgentId"
+    ],
+    "response_fields_used": [
+     "rs (S/SU ok; F/FL/EX01 block)",
+     "rc (099 logout)",
+     "rd",
+     "payload.requestId",
+     "payload.pidDtls",
+     "payload.deviceListV2",
+     "payload.cryptoKey",
+     "payload.encryptPanFlag",
+     "payload.mbNo",
+     "payload.panNo",
+     "payload.shopAddr",
+     "payload.name",
+     "payload.clientId",
+     "payload.dob",
+     "payload.selfie",
+     "payload.contactDetails[]",
+     "payload.iconDtls[]",
+     "payload.step",
+     "payload.aadharConcent"
+    ]
+   },
+   {
+    "method": "POST",
+    "path": "https://nsdlekyc.spicemoney.com/nsdlkosubko/ws/otpinit/v1",
+    "request_fields": [
+     "mbNo",
+     "requestId"
+    ],
+    "response_fields_used": [
+     "rs",
+     "rd",
+     "payload.otprequestId"
+    ]
+   },
+   {
+    "method": "POST",
+    "path": "https://nsdlekyc.spicemoney.com/nsdlkosubko/ws/pan/validate/v1",
+    "request_fields": [
+     "panNumber (AES if encryptPanFlag=Y)",
+     "step=2",
+     "name",
+     "dob",
+     "requestId"
+    ],
+    "response_fields_used": [
+     "rs",
+     "rd"
+    ]
+   },
+   {
+    "method": "POST",
+    "path": "https://nsdlekyc.spicemoney.com/nsdlkosubko/ws/addr/confirm/v1",
+    "request_fields": [
+     "address",
+     "step=3",
+     "requestId"
+    ],
+    "response_fields_used": [
+     "rs",
+     "rd"
+    ]
+   }
+  ],
+  "next": [
+   {
+    "to": "ko-init-blocked",
+    "condition": "init rs in F / FL / EX01"
+   },
+   {
+    "to": "ko-otp-sheet",
+    "condition": "Verify (mobile) and otpinit rs S/SU"
+   },
+   {
+    "to": "ko-aadhaar",
+    "condition": "Proceed to Aadhaar Verification"
+   },
+   {
+    "to": "help-sheet",
+    "condition": "Help"
+   },
+   {
+    "to": "caller (RESULT_OK + serviceName)",
+    "condition": "back when skipFlag != Y"
+   },
+   {
+    "to": "caller (plain back)",
+    "condition": "back when skipFlag == Y"
+   }
+  ],
+  "notes": "Mobile, PAN and address are read-only TextViews filled from init; the agent cannot edit them. payload.step resumes: 1 = mobile verified, 2 = + PAN verified, 3 = + address confirmed (Proceed enabled). Failures show a toast with responseDesc and bring the button back. All verify buttons start disabled (alpha 0.6); Verify (mobile) is enabled on init success."
+ },
+ {
+  "id": "ko-init-blocked",
+  "path": "ko",
+  "screen_class": "AlertManagerKt.v (MaterialDialog)",
+  "layout": "material dialog",
+  "title": "",
+  "texts": [
+   "<init responseDesc>"
+  ],
+  "fields": [],
+  "buttons": [
+   "OK"
+  ],
+  "api": [],
+  "next": [
+   {
+    "to": "caller",
+    "condition": "OK finishes NSDLeKYCVerification"
+   }
+  ],
+  "notes": "For init rs F, FL or EX01. Any other non-success status shows only a toast and leaves the screen empty."
+ },
+ {
+  "id": "ko-otp-sheet",
+  "path": "ko",
+  "screen_class": "spice.mudra.nsdlekyc.ko.view.OTPVerificationBottomSheet",
+  "layout": "fragment_otp_verification_bottom_sheet",
+  "title": "Enter OTP manually",
+  "texts": [
+   "Enter OTP manually",
+   "We have sent a OTP to your registered number (+91)<mobile>",
+   "02:00 (countdown)",
+   "Didn't get the OTP?  Resend OTP (layout gone)",
+   "Please enter valid OTP"
+  ],
+  "fields": [
+   {
+    "label": "OTP",
+    "type": "6-box numeric OTP",
+    "hint": "",
+    "validation": "exactly 6 digits, else toast 'Please enter valid OTP'; sent as otpHash = Base64(SHA-512(otp))"
+   }
+  ],
+  "buttons": [
+   "Submit"
+  ],
+  "api": [
+   {
+    "method": "POST",
+    "path": "https://nsdlekyc.spicemoney.com/nsdlkosubko/ws/otpvalidate/v1",
+    "request_fields": [
+     "mbNo",
+     "step=1",
+     "requestId",
+     "otprequestId",
+     "otpHash"
+    ],
+    "response_fields_used": [
+     "rs",
+     "rc",
+     "rd"
+    ]
+   }
+  ],
+  "next": [
+   {
+    "to": "ko-details",
+    "condition": "rs S/SU -> mobile 'Verified', PAN Verify enabled"
+   },
+   {
+    "to": "ko-details",
+    "condition": "fail -> toast responseDesc, Verify shown again, sheet closes"
+   },
+   {
+    "to": "ko-details",
+    "condition": "timer (120 s or AXIS_CD_OTP_TIME) ends -> sheet closes silently"
+   }
+  ],
+  "notes": "Resend is not available: the resend layout is gone and its click handler is empty."
+ },
+ {
+  "id": "ko-aadhaar",
+  "path": "ko",
+  "screen_class": "spice.mudra.nsdlekyc.ko.view.NSDLeKYCVerification (step 2, constraintAadharVerification + llCaptureView)",
+  "layout": "activity_nsdl_ekycverification",
+  "title": "NSDL eKYC",
+  "texts": [
+   "Aadhaar Verification",
+   "Confirm your identity",
+   "Doc type",
+   "AADHAAR",
+   "Enter Aadhaar Number",
+   "Aadhaar Number (hint after picking AADHAAR)",
+   "I Spice Money Adhikari accept the Aadhaar Consent",
+   "Note: Input your Aadhaar number and verify with biometrics for essential security and regulatory compliance on daily login.",
+   "<device name>",
+   "Change Device",
+   "Scan finger",
+   "Please enter valid Customer Aadhaar Number",
+   "Please enter Customer Aadhaar Number",
+   "Please enter valid VID number",
+   "Please accept Aadhaar consent terms"
+  ],
+  "fields": [
+   {
+    "label": "Doc type",
+    "type": "dropdown (popup list)",
+    "hint": "Doc type",
+    "validation": "only option 'AADHAAR'; NOT preselected on the KO screen"
+   },
+   {
+    "label": "Enter Aadhaar Number",
+    "type": "number",
+    "hint": "Enter Aadhaar Number",
+    "validation": "numeric + Verhoeff; AADHAAR picked: max 12, must be 12 ('Please enter Customer Aadhaar Number'); nothing picked: max 50 and the VID branch needs 16 digits, otherwise silent no-op"
+   },
+   {
+    "label": "Aadhaar consent",
+    "type": "checkbox",
+    "hint": "",
+    "validation": "must be ticked ('Please accept Aadhaar consent terms')"
+   }
+  ],
+  "buttons": [
+   "Aadhaar Consent (link)",
+   "Change Device / device row",
+   "Scan finger"
+  ],
+  "api": [
+   {
+    "method": "POST",
+    "path": "https://nsdlekyc.spicemoney.com/nsdlkosubko/ws/ekycBio/v1",
+    "request_fields": [
+     "requestId",
+     "channeltxnid=IRISNSDL2LNHRF8OOGYRW085154DQCGBE (hard-coded)",
+     "bt=FMR",
+     "aadhaarno (AES with cryptoKey)",
+     "uidtype (U if 12 digits else V)",
+     "pidblockdtls{certexpirydate,data,hmac,purpose=EKYC,skey,udc}",
+     "rddtls{dc,dpId,mc,mi,rdsId,rdsVer,udc}"
+    ],
+    "response_fields_used": [
+     "rs (S/SU)",
+     "rc (099 logout)",
+     "rd"
+    ]
+   }
+  ],
+  "next": [
+   {
+    "to": "ko-consent-dialog",
+    "condition": "tap 'Aadhaar Consent'"
+   },
+   {
+    "to": "device-picker",
+    "condition": "tap device row"
+   },
+   {
+    "to": "rd-install-dialog",
+    "condition": "RD Service app for the device not installed"
+   },
+   {
+    "to": "rd-capture",
+    "condition": "Scan finger with valid input"
+   },
+   {
+    "to": "ko-complete",
+    "condition": "ekycBio rs S/SU"
+   },
+   {
+    "to": "ko-aadhaar",
+    "condition": "ekycBio fail -> toast responseDesc"
+   }
+  ],
+  "notes": "Default device MANTRA_L1. PID options from init payload.pidDtls (fallback fCount=1 fType=2 env=P timeout=10000 with a fixed wadh). Device errors (toasts): 'Device not Ready', 'Device not connected,Please connect the device properly', 'Device not registered,Please register the device', 'RD Service information empty', 'No RD Service Available'."
+ },
+ {
+  "id": "ko-consent-dialog",
+  "path": "ko",
+  "screen_class": "AlertManagerKt.c (NSDLeKYCVerification$setClickableConsentText)",
+  "layout": "alert dialog",
+  "title": "Customer Consent",
+  "texts": [
+   "Customer Consent",
+   "<server HTML payload.aadharConcent>"
+  ],
+  "fields": [],
+  "buttons": [
+   "Agree and Continue"
+  ],
+  "api": [],
+  "next": [
+   {
+    "to": "ko-aadhaar",
+    "condition": "Agree and Continue (checkbox NOT auto-ticked on KO)"
+   }
+  ],
+  "notes": "Consent text is server-driven."
+ },
+ {
+  "id": "device-picker",
+  "path": "common",
+  "screen_class": "spice.mudra.nsdl_ybl_rekyc.biometricUtility.SelectDeviceDialog",
+  "layout": "aeps_device_list_new_revamped",
+  "title": "Select Biometric Device",
+  "texts": [
+   "Select Biometric Device",
+   "Currently Active",
+   "MFS110 - L1",
+   "Morpho - L1",
+   "FM220U - L1",
+   "Marc 11",
+   "Evolute eScan L1",
+   "VisionTek V600 L1",
+   "PB1000 - L1",
+   "Evolute L1",
+   "Add new device"
+  ],
+  "fields": [],
+  "buttons": [
+   "<device row>",
+   "Add new device"
+  ],
+  "api": [],
+  "next": [
+   {
+    "to": "ko-aadhaar",
+    "condition": "device picked (Sub-KO: subko-aadhaar / subko-parent-confirm)"
+   }
+  ],
+  "notes": "Rows are filtered to the server list (KO: init deviceListV2; default MANTRA_L1, MORPHO_L1, STARTEK_L1, MARC11, EVOLUTE_ESCAN_L1, VISIONTEK_V600_L1, PRECISION_L1, EVOLUTE_L1). The Sub-KO default list also includes L0 devices (Mantra, Morpho, Startek, Precision, Evolute, Tatvik, NextBiometrics, Aratek, Secugen)."
+ },
+ {
+  "id": "rd-install-dialog",
+  "path": "common",
+  "screen_class": "NSDLeKYCViewModel.r() Dialog",
+  "layout": "check_mantra_rd_services",
+  "title": "APPS REQUIRED",
+  "texts": [
+   "APPS REQUIRED",
+   "You may need to install one or more additional apps to fully support the guidelines mandated by UIDAI.",
+   "Mantra RD Service | Morpho RD Service | Startek RD Service | Marc11 RD Service | VisionTek RD Service | Evolute escan L1 RD Service | PB1000 L1 RD Service | Evolute L1 RD Service",
+   "Not installed",
+   "Installed"
+  ],
+  "fields": [],
+  "buttons": [
+   "INSTALL",
+   "Cancel"
+  ],
+  "api": [],
+  "next": [
+   {
+    "to": "Play Store",
+    "condition": "INSTALL"
+   },
+   {
+    "to": "ko-aadhaar",
+    "condition": "Cancel or app installed (broadcast closes the dialog)"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "id": "rd-capture",
+  "path": "common",
+  "screen_class": "External RD Service app (CAPTURE intent)",
+  "layout": "— (vendor UI)",
+  "title": "",
+  "texts": [
+   "<vendor capture UI>"
+  ],
+  "fields": [],
+  "buttons": [],
+  "api": [],
+  "next": [
+   {
+    "to": "ko-aadhaar / subko-aadhaar / subko-parent-confirm / staff-delete",
+    "condition": "PID_DATA returned -> ekycBio / confirmEkyc / delete call"
+   }
+  ],
+  "notes": "Morpho errors: 'Failed to parse Morpho PID DATA response.' or 'Something wrong with Morpho device, please open Morpho app and click Refresh button at the top right corner of Morpho mobile app.' Morpho not registered: 'Dear agent, it seems your Morpho Biometric device is not registered. Please contact Spice Money customer care at 01203986786 to understand the process of device activation.'"
+ },
+ {
+  "id": "ko-complete",
+  "path": "ko",
+  "screen_class": "spice.mudra.nsdlekyc.ko.view.KYCCompleteActivity (isFromKO=true)",
+  "layout": "activity_kyccomplete",
+  "title": "",
+  "texts": [
+   "KYC Successfully Completed",
+   "Proceed with onboarding (only when isFromAEPS && subkoflow == Y)"
+  ],
+  "fields": [],
+  "buttons": [
+   "Proceed with onboarding"
+  ],
+  "api": [],
+  "next": [
+   {
+    "to": "ko-onboarded-dialog",
+    "condition": "isFromAEPS: tap Proceed with onboarding"
+   },
+   {
+    "to": "caller with serviceName (AePS resumes)",
+    "condition": "not from AePS, after 3.5 s, skipFlag non-empty and != Y"
+   },
+   {
+    "to": "Dashboard",
+    "condition": "not from AePS, after 3.5 s, otherwise"
+   }
+  ],
+  "notes": "Sets local pref subkoflow=Y before opening. The layout text reads 'Procced with onboarding'; code overwrites it."
+ },
+ {
+  "id": "ko-onboarded-dialog",
+  "path": "ko",
+  "screen_class": "spice.mudra.nsdlekyc.ko.view.NSDLErrorDialog (type=1)",
+  "layout": "fragment_nsdl_error_dialog",
+  "title": "Onboarded successfully!",
+  "texts": [
+   "Onboarded successfully!",
+   "Dear Adhikari, Please add your sub-Adhikari who can help you do authentication on your behalf"
+  ],
+  "fields": [],
+  "buttons": [
+   "Add Sub-Adhikari",
+   "Add Later"
+  ],
+  "api": [],
+  "next": [
+   {
+    "to": "subko-details",
+    "condition": "Add Sub-Adhikari"
+   },
+   {
+    "to": "caller",
+    "condition": "Add Later (back)"
+   }
+  ],
+  "notes": "Non-cancelable, green tick icon (success_gtick). Type 0 or other = error variant with 'Okay'."
+ },
+ {
+  "id": "subko-details",
+  "path": "subko",
+  "screen_class": "spice.mudra.nsdlekyc.subKO.view.SubkoVerificationActivity (step 1)",
+  "layout": "activity_subko_verification",
+  "title": "Add Sub-Adhikari",
+  "texts": [
+   "Add Sub-Adhikari",
+   "1",
+   "Detail Verification",
+   "2",
+   "Aadhaar Verification",
+   "Sub- Adhikari Details",
+   "Enter Name",
+   "Enter mobile number",
+   "Enter your Date of Birth",
+   "Enter Email ID (Optional)",
+   "Enter PAN number",
+   "Verify",
+   "I agree to the Terms and conditions",
+   "Verify via OTP",
+   "Help",
+   "Please enter a valid Name.",
+   "Please enter valid Mobile Number",
+   "Please enter your date of birth",
+   "Please enter age between 18 and 80",
+   "Please enter a Valid Email Id",
+   "Invalid PAN card number",
+   "Invalid PAN Number",
+   "Please accept Terms and Conditions",
+   "No Internet Connection",
+   "Please check your internet connection"
+  ],
+  "fields": [
+   {
+    "label": "Name",
+    "type": "text",
+    "hint": "Enter Name",
+    "validation": "required ('Please enter a valid Name.'); editing it clears a verified 10-char PAN"
+   },
+   {
+    "label": "Mobile number",
+    "type": "number, max 10",
+    "hint": "Enter mobile number",
+    "validation": "Patterns.PHONE, >= 10 digits, not starting with 0 ('Please enter valid Mobile Number')"
+   },
+   {
+    "label": "Date of Birth",
+    "type": "date picker (dd/MM/yyyy), not typeable",
+    "hint": "Enter your Date of Birth",
+    "validation": "required ('Please enter your date of birth'); age 18-80 ('Please enter age between 18 and 80'); editing clears a verified PAN"
+   },
+   {
+    "label": "Email ID",
+    "type": "email",
+    "hint": "Enter Email ID (Optional)",
+    "validation": "optional; if filled must match Patterns.EMAIL_ADDRESS ('Please enter a Valid Email Id')"
+   },
+   {
+    "label": "PAN number",
+    "type": "text caps, max 10",
+    "hint": "Enter PAN number",
+    "validation": "[A-Z]{5}[0-9]{4}[A-Z]{1} ('Invalid PAN card number'); inline error 'Invalid PAN Number' under 10 chars; server verify"
+   },
+   {
+    "label": "Terms and conditions",
+    "type": "checkbox",
+    "hint": "",
+    "validation": "required ('Please accept Terms and Conditions')"
+   }
+  ],
+  "buttons": [
+   "Verify (PAN)",
+   "Terms and conditions (link)",
+   "Verify via OTP (enabled after PAN verified)",
+   "Help",
+   "back"
+  ],
+  "api": [
+   {
+    "method": "POST",
+    "path": "https://nsdlekyc.spicemoney.com/nsdlkosubko/ws/init/subko/v1",
+    "request_fields": [
+     "common body (CommonUtility.Y) + clientId; headers mode=APP, lang, token, clientId, bcAgentId"
+    ],
+    "response_fields_used": [
+     "payload.aadharConcent",
+     "payload.subKoTc",
+     "payload.pidDtls",
+     "payload.parentPidDtls",
+     "payload.deviceList",
+     "payload.cryptoKey",
+     "payload.encryptPanFlag",
+     "payload.requestId",
+     "payload.journeyDetails{dob,email,moNo,panNo,panVerificationStatus}",
+     "payload.contactDetails[]",
+     "payload.step"
+    ]
+   },
+   {
+    "method": "POST",
+    "path": "https://nsdlekyc.spicemoney.com/nsdlkosubko/ws/pan/validate/v1",
+    "request_fields": [
+     "panNumber (AES if encryptPanFlag=Y)",
+     "mobileNo",
+     "name",
+     "email",
+     "type=SubKo",
+     "dob"
+    ],
+    "response_fields_used": [
+     "rs (SU)",
+     "rd",
+     "payload.requestId -> EKYC_SUBKO_REQ_ID"
+    ]
+   },
+   {
+    "method": "POST",
+    "path": "https://nsdlekyc.spicemoney.com/nsdlkosubko/ws/otpinit/v1",
+    "request_fields": [
+     "mbNo",
+     "type=SubKo",
+     "requestId"
+    ],
+    "response_fields_used": [
+     "rs (SU)",
+     "rd",
+     "payload.otprequestId"
+    ]
+   }
+  ],
+  "next": [
+   {
+    "to": "subko-tc-dialog",
+    "condition": "tap 'Terms and conditions'"
+   },
+   {
+    "to": "subko-otp-sheet",
+    "condition": "Verify via OTP and otpinit rs SU"
+   },
+   {
+    "to": "subko-aadhaar",
+    "condition": "init payload.step == 1"
+   },
+   {
+    "to": "subko-details",
+    "condition": "PAN fail -> PAN cleared + toast"
+   }
+  ],
+  "notes": "If journeyDetails.panVerificationStatus == Y the form is pre-filled (DOB, mobile, email, name, PAN with tick) and Verify via OTP is enabled. If subKoTc is empty the checkbox shows 'I agree to accept the ' with no link but is still required. Success checks in the observers need rs == 'SU' exactly."
+ },
+ {
+  "id": "subko-tc-dialog",
+  "path": "subko",
+  "screen_class": "AlertManagerKt.c (SubkoVerificationActivity$setClickableTC)",
+  "layout": "alert dialog",
+  "title": "Terms & Conditions",
+  "texts": [
+   "Terms & Conditions",
+   "<server HTML payload.subKoTc>"
+  ],
+  "fields": [],
+  "buttons": [
+   "Agree and Continue"
+  ],
+  "api": [],
+  "next": [
+   {
+    "to": "subko-details",
+    "condition": "Agree and Continue ticks the T&C box"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "id": "subko-otp-sheet",
+  "path": "subko",
+  "screen_class": "spice.mudra.nsdlekyc.ko.view.OTPVerificationBottomSheet",
+  "layout": "fragment_otp_verification_bottom_sheet",
+  "title": "Enter OTP manually",
+  "texts": [
+   "Enter OTP manually",
+   "We have sent a OTP to your registered number (+91)<staff mobile>",
+   "02:00 (countdown)",
+   "Please enter valid OTP"
+  ],
+  "fields": [
+   {
+    "label": "OTP",
+    "type": "6-box numeric OTP",
+    "hint": "",
+    "validation": "exactly 6 digits; hashed SHA-512"
+   }
+  ],
+  "buttons": [
+   "Submit"
+  ],
+  "api": [
+   {
+    "method": "POST",
+    "path": "https://nsdlekyc.spicemoney.com/nsdlkosubko/ws/otpvalidate/v1",
+    "request_fields": [
+     "mbNo",
+     "step=1",
+     "type=SubKo",
+     "requestId",
+     "otprequestId",
+     "otpHash"
+    ],
+    "response_fields_used": [
+     "rs (S/SU)",
+     "rc (9901 = retry)",
+     "rd"
+    ]
+   }
+  ],
+  "next": [
+   {
+    "to": "subko-aadhaar",
+    "condition": "rs S or SU"
+   },
+   {
+    "to": "subko-otp-sheet",
+    "condition": "rc 9901 -> toast, sheet stays"
+   },
+   {
+    "to": "subko-details",
+    "condition": "other failure -> toast, sheet closes"
+   }
+  ],
+  "notes": "The copy says 'registered number' although it is the staff member's number."
+ },
+ {
+  "id": "subko-aadhaar",
+  "path": "subko",
+  "screen_class": "spice.mudra.nsdlekyc.subKO.view.SubkoVerificationActivity (step 2)",
+  "layout": "activity_subko_verification",
+  "title": "Add Sub-Adhikari",
+  "texts": [
+   "Aadhaar Verification",
+   "Confirm your identity",
+   "Doc type",
+   "Aadhaar",
+   "Aadhaar Number",
+   "I Spice Money Adhikari accept the Aadhaar Consent",
+   "Note: Input your Aadhaar number and verify with biometrics for essential security and regulatory compliance on daily login.",
+   "<device name>",
+   "Change Device",
+   "Scan finger",
+   "Please enter valid Customer Aadhaar Number",
+   "Please enter Customer Aadhaar Number",
+   "Please accept Aadhaar consent terms"
+  ],
+  "fields": [
+   {
+    "label": "Doc type",
+    "type": "dropdown",
+    "hint": "Doc type",
+    "validation": "AADHAAR preselected (performItemClick)"
+   },
+   {
+    "label": "Aadhaar Number (staff)",
+    "type": "number, max 12",
+    "hint": "Aadhaar Number",
+    "validation": "numeric + Verhoeff; >= 12"
+   },
+   {
+    "label": "Aadhaar consent",
+    "type": "checkbox",
+    "hint": "",
+    "validation": "required; consent dialog 'Agree and Continue' ticks it"
+   }
+  ],
+  "buttons": [
+   "Aadhaar Consent (link)",
+   "Change Device",
+   "Scan finger"
+  ],
+  "api": [
+   {
+    "method": "POST",
+    "path": "https://nsdlekyc.spicemoney.com/nsdlkosubko/ws/ekycBio/v1",
+    "request_fields": [
+     "requestId",
+     "channeltxnid=IRISNSDL2LNHRF8OOGYRW085154DQCGBE (hard-coded)",
+     "bt=FMR",
+     "aadhaarno (AES with cryptoKey)",
+     "uidtype (U if 12 digits else V)",
+     "pidblockdtls{certexpirydate,data,hmac,purpose=EKYC,skey,udc}",
+     "rddtls{dc,dpId,mc,mi,rdsId,rdsVer,udc}",
+     "type=SubKo",
+     "requestId = EKYC_SUBKO_REQ_ID"
+    ],
+    "response_fields_used": [
+     "rs (SU)",
+     "rd"
+    ]
+   }
+  ],
+  "next": [
+   {
+    "to": "subko-parent-confirm",
+    "condition": "rs SU"
+   },
+   {
+    "to": "subko-aadhaar",
+    "condition": "fail -> toast responseDesc"
+   }
+  ],
+  "notes": "Staff member scans his own finger."
+ },
+ {
+  "id": "subko-parent-confirm",
+  "path": "subko",
+  "screen_class": "spice.mudra.nsdlekyc.subKO.view.FragmentKOVerification (dialog)",
+  "layout": "fragment_ko_bio",
+  "title": "Adhikari Confirmation",
+  "texts": [
+   "1",
+   "OTP verification",
+   "2",
+   "Customer eKYC",
+   "Adhikari Confirmation",
+   "Dear Adhikari, you will be prompted to scan your finger for adding of Sub-Adhikari",
+   "Doc type",
+   "Enter Aadhaar Number",
+   "I Spice Money Adhikari accept the Aadhaar Consent",
+   "Change Device",
+   "Scan finger"
+  ],
+  "fields": [
+   {
+    "label": "Doc type",
+    "type": "dropdown",
+    "hint": "Doc type",
+    "validation": "AADHAAR preselected"
+   },
+   {
+    "label": "Aadhaar Number (adhikari's own)",
+    "type": "number",
+    "hint": "Enter Aadhaar Number",
+    "validation": "numeric + Verhoeff; >= 12"
+   },
+   {
+    "label": "Aadhaar consent",
+    "type": "checkbox",
+    "hint": "",
+    "validation": "required"
+   }
+  ],
+  "buttons": [
+   "Change Device",
+   "Scan finger"
+  ],
+  "api": [
+   {
+    "method": "POST",
+    "path": "https://nsdlekyc.spicemoney.com/nsdlkosubko/ws/confirmEkyc/v1",
+    "request_fields": [
+     "requestId",
+     "bt=FMR",
+     "type=SubKo",
+     "parentagentauthtype=BIOAUTH",
+     "aadhaarno (KO, AES)",
+     "uidtype",
+     "pidblockdtls{...}",
+     "rddtls{...}"
+    ],
+    "response_fields_used": [
+     "rs (SU)",
+     "rd"
+    ]
+   }
+  ],
+  "next": [
+   {
+    "to": "subko-complete",
+    "condition": "rs SU"
+   },
+   {
+    "to": "subko-parent-confirm",
+    "condition": "fail -> alert with responseDesc"
+   }
+  ],
+  "notes": "Uses the device chosen on the staff step (NEXT -> NextBiometrics). PID options from parentPidDtls. The failure branch logs the analytics event 'Sub-Ko Onboarded Success'."
+ },
+ {
+  "id": "subko-complete",
+  "path": "subko",
+  "screen_class": "spice.mudra.nsdlekyc.ko.view.KYCCompleteActivity (isFromKO=false)",
+  "layout": "activity_kyccomplete",
+  "title": "",
+  "texts": [
+   "<staff ekycBio responseDesc> or 'Sub-Adhikari's KYC done Successfully!' (only when desc is empty string)"
+  ],
+  "fields": [],
+  "buttons": [],
+  "api": [],
+  "next": [
+   {
+    "to": "manage-staff-list",
+    "condition": "isFromAEPS: auto-close after 3.5 s with RESULT_OK (list refreshes)"
+   },
+   {
+    "to": "stay",
+    "condition": "not from AePS: until back"
+   }
+  ],
+  "notes": "A null responseDesc shows blank text instead of the fallback."
+ },
+ {
+  "id": "manage-staff-list",
+  "path": "staff",
+  "screen_class": "spice.mudra.nsdlekyc.subKO.view.ManageStaffFragment + AdapterManageStaff",
+  "layout": "fragment_manage_staff + row_item_staff",
+  "title": "Manage Staff",
+  "texts": [
+   "<staff name>",
+   "ID: <employeeId>",
+   "Add staff",
+   "You can add maximum 2 subko."
+  ],
+  "fields": [],
+  "buttons": [
+   "Add staff",
+   "<row: view>",
+   "<row: delete>"
+  ],
+  "api": [
+   {
+    "method": "POST",
+    "path": "https://nsdlekyc.spicemoney.com/nsdlkosubko/ws/subko/dtls/v1",
+    "request_fields": [
+     "common body (CommonUtility.Y) + clientId; headers mode=APP, lang, token, clientId, bcAgentId"
+    ],
+    "response_fields_used": [
+     "rs (S/SU)",
+     "rd",
+     "payload.subKoDetails[]{name,phoneNo,email,employeeId,panNo,aadhaarNo,photo}",
+     "payload.subkoIdLimit",
+     "payload.parentPidDtls"
+    ]
+   }
+  ],
+  "next": [
+   {
+    "to": "subko-details",
+    "condition": "Add staff and count != subkoIdLimit"
+   },
+   {
+    "to": "alert",
+    "condition": "count == subkoIdLimit -> 'You can add maximum 2 subko.'"
+   },
+   {
+    "to": "staff-detail",
+    "condition": "row view"
+   },
+   {
+    "to": "staff-delete",
+    "condition": "row delete"
+   }
+  ],
+  "notes": "List failure: both sections hidden + toast responseDesc. The limit text is hard-coded while the limit is server-driven."
+ },
+ {
+  "id": "staff-detail",
+  "path": "staff",
+  "screen_class": "spice.mudra.nsdlekyc.subKO.view.StaffDetailFragment",
+  "layout": "fragment_staff_detail",
+  "title": "Sub-Adhikari Details",
+  "texts": [
+   "Sub-Adhikari Details",
+   "Employee Name",
+   "Phone Number",
+   "Email ID",
+   "Employee ID",
+   "Pan Number",
+   "Aadhaar Number"
+  ],
+  "fields": [],
+  "buttons": [
+   "Okay"
+  ],
+  "api": [],
+  "next": [
+   {
+    "to": "manage-staff-list",
+    "condition": "Okay"
+   }
+  ],
+  "notes": "Values from subKoDetails (masking is server-side)."
+ },
+ {
+  "id": "staff-delete",
+  "path": "staff",
+  "screen_class": "spice.mudra.nsdlekyc.subKO.view.DeleteStaffFragment",
+  "layout": "layout_delete_subko",
+  "title": "Delete Sub- Adhikari",
+  "texts": [
+   "1",
+   "OTP verification",
+   "2",
+   "Customer eKYC",
+   "Delete Sub- Adhikari",
+   "Dear Adhikari, you will be prompted to scan your finger for deletion of Sub-Adhikari",
+   "Sub-Adhikari Details",
+   "Employee Name",
+   "Phone Number",
+   "Change Device",
+   "Scan finger"
+  ],
+  "fields": [],
+  "buttons": [
+   "Change Device",
+   "Scan finger"
+  ],
+  "api": [
+   {
+    "method": "POST",
+    "path": "https://nsdlekyc.spicemoney.com/nsdlkosubko/ws/delete/subko/v1",
+    "request_fields": [
+     "requestId",
+     "bt=FMR",
+     "type=SubKo",
+     "clientID",
+     "parentagentauthtype=BIOAUTH",
+     "subkoId (= employeeId)",
+     "pidblockdtls{...}",
+     "rddtls{...}"
+    ],
+    "response_fields_used": [
+     "rs",
+     "rd"
+    ]
+   }
+  ],
+  "next": [
+   {
+    "to": "manage-staff-list",
+    "condition": "success -> list refresh"
+   }
+  ],
+  "notes": "KO's finger only; no Aadhaar number typed."
+ },
+ {
+  "id": "help-sheet",
+  "path": "common",
+  "screen_class": "BottomSheetDialog (help_bottom_sheet, DistributorAdapterBottom)",
+  "layout": "help_bottom_sheet",
+  "title": "Helpline numbers",
+  "texts": [
+   "Helpline numbers",
+   "<contactDetails[].role>",
+   "<contactDetails[].mobileNumber>"
+  ],
+  "fields": [],
+  "buttons": [
+   "<number>",
+   "close (cross)"
+  ],
+  "api": [],
+  "next": [
+   {
+    "to": "previous screen",
+    "condition": "close"
+   }
+  ],
+  "notes": "Contact list from init/v1 or init/subko/v1."
+ }
+]
