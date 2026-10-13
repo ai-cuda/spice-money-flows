@@ -1,0 +1,2196 @@
+[
+ {
+  "id": "home-loan-tile",
+  "path": "common",
+  "screen_class": "DashboardFragmentRevamp (Recharges and Bills section)",
+  "layout": "home tile (DashboardTileAdapter)",
+  "title": "Loan Repayment",
+  "texts": [
+   "Recharges and Bills",
+   "Loan Repayment",
+   "<repaymentStripe tag text, e.g. 'Get Com..'>"
+  ],
+  "fields": [],
+  "buttons": [
+   "Loan Repayment"
+  ],
+  "api": [
+   {
+    "method": "POST",
+    "path": "bbpsservices/fetchmdmcategories/1.0/APP/{clientId}",
+    "request_fields": [
+     "catVer"
+    ],
+    "response_fields_used": [
+     "services[].catDisplayName",
+     "services[].id",
+     "services[].billerMdmCriteria",
+     "services[].hindiName",
+     "gibberishRegex",
+     "addPrefixMaxLength"
+    ]
+   }
+  ],
+  "next": [
+   {
+    "to": "dialog-bbps-unavailable",
+    "condition": "BBPS_ENABLED != Y"
+   },
+   {
+    "to": "mobile-entry",
+    "condition": "BBPS_ENABLED = Y"
+   }
+  ],
+  "notes": "Icon nd_tile_bbps_loan (category id 23). Yellow round tag (TbBackColors.YELLOW_ROUND) from HomeINIT key 'repaymentStripe' = '<tbvs>,<tbtxt>'. Hindi tile name 'लोन रीपेमेंट'. Deep link 'loanrepayment' opens the same flow."
+ },
+ {
+  "id": "dialog-bbps-unavailable",
+  "path": "common",
+  "screen_class": "AlertManagerKt.i (DashboardFragmentRevamp.navigateToBBPSelectedItem)",
+  "layout": "alert dialog",
+  "title": "",
+  "texts": [
+   "<BBPS_MESSAGE from server; seen live: 'Dear Agent. BBPS is currently unavailable in your log-in…'>"
+  ],
+  "fields": [],
+  "buttons": [
+   "OK"
+  ],
+  "api": [],
+  "next": [
+   {
+    "to": "home-loan-tile",
+    "condition": "dismiss"
+   }
+  ],
+  "notes": "Server-driven copy. See flow 05."
+ },
+ {
+  "id": "mobile-entry",
+  "path": "common",
+  "screen_class": "spice.mudra.bbps.v2.mobileno.entry.BBPSMobileEntryActivity",
+  "layout": "activity_bbps_mobile_entry",
+  "title": "Loan Repayment",
+  "texts": [
+   "Loan Repayment",
+   "Customer Mobile Number",
+   "\\ 8888888888 (upside-down customer display)",
+   "Enjoy zero convenience fee on recharges 👍",
+   "Continue",
+   "History",
+   "View your transaction history",
+   "Earnings",
+   "Track Daily, Weekly, and Monthly Business Growth",
+   "Commissions",
+   "Check how much you can earn from clients",
+   "Help",
+   "View tutorials, FAQs or contact support",
+   "Complaints",
+   "Raise and view Complaints status",
+   "Bill Reminders",
+   "Manage reminders for your customers",
+   "Enter customer mobile number",
+   "Please enter a valid 10 digit mobile number",
+   "Mobile number must start with 9, 8, 7, or 6 (cannot start with 0)"
+  ],
+  "fields": [
+   {
+    "label": "Customer Mobile Number",
+    "type": "phone (10 digits, starts 6-9)",
+    "hint": "Customer Mobile Number"
+   }
+  ],
+  "buttons": [
+   "Continue",
+   "History",
+   "Earnings",
+   "Commissions",
+   "Help",
+   "Complaints",
+   "Bill Reminders"
+  ],
+  "api": [],
+  "next": [
+   {
+    "to": "state-selection",
+    "condition": "biller selectCriteria cond1/cond2 (or all + uiStateFilter=Y) and no cached state"
+   },
+   {
+    "to": "biller-selection",
+    "condition": "otherwise"
+   }
+  ],
+  "notes": "Generic BBPS screen (flow 05). For bulk the number entered here is not used; each bulk row carries its own mobile."
+ },
+ {
+  "id": "state-selection",
+  "path": "common",
+  "screen_class": "spice.mudra.bbps.v2.location.selection.BBPSStateSelectionActivity",
+  "layout": "activity_bbps_area_selection",
+  "title": "Select State",
+  "texts": [
+   "Select State",
+   "Current location",
+   "No States Found"
+  ],
+  "fields": [],
+  "buttons": [
+   "<state rows>"
+  ],
+  "api": [],
+  "next": [
+   {
+    "to": "biller-selection",
+    "condition": "state picked"
+   }
+  ],
+  "notes": "Only if the lender biller needs a state. GPS can auto-pick."
+ },
+ {
+  "id": "biller-selection",
+  "path": "common",
+  "screen_class": "spice.mudra.bbps.v2.billers.BBPSBillerSelectionActivity",
+  "layout": "activity_bbps_biller_selection",
+  "title": "Select Biller",
+  "texts": [
+   "Select Biller",
+   "Selected State",
+   "Change",
+   "Select Operator",
+   "Search an operator",
+   "Recent Billers",
+   "Billers",
+   "Load more",
+   "No biller found",
+   "Loading..."
+  ],
+  "fields": [
+   {
+    "label": "Search",
+    "type": "text",
+    "hint": "Search an operator"
+   }
+  ],
+  "buttons": [
+   "Change",
+   "<lender rows>",
+   "Load more"
+  ],
+  "api": [
+   {
+    "method": "POST",
+    "path": "bbpsservices/fetchtopbillers/1.0/APP/{clientId}",
+    "request_fields": [
+     "catId",
+     "state"
+    ],
+    "response_fields_used": [
+     "billers[]"
+    ]
+   }
+  ],
+  "next": [
+   {
+    "to": "bill-entry-single",
+    "condition": "lender picked"
+   }
+  ],
+  "notes": "Lender list (NBFC/MFI/banks) is server data."
+ },
+ {
+  "id": "bill-entry-single",
+  "path": "single",
+  "screen_class": "spice.mudra.bbps.v2.bill.entry.BBPSBillEntryActivity",
+  "layout": "activity_bbps_bill_entry",
+  "title": "<biller display name>",
+  "texts": [
+   "Single repayment",
+   "Bulk repayment",
+   "Customer Details",
+   "Get certified",
+   "<dynamic loan fields from biller params, e.g. Loan Account Number>",
+   "Remitter Name",
+   "This is the name of customer who is making the payment",
+   "Enter Amount",
+   "₹ 100",
+   "₹ 200",
+   "₹ 300",
+   "Note : Please check the old bill of customer and validate all details before proceeding",
+   "Bill Receipt will be sent on ",
+   "<customer mobile>",
+   "Change",
+   "Payment Mode",
+   "Cash",
+   "UPI",
+   "Fetch bill details >",
+   "Please enter remitter name",
+   "Please enter valid remitter name",
+   "Please enter amount",
+   "Amount cannot be 0",
+   "Please enter Customer Mobile Number",
+   "Customer mobile number should be of 10 digits",
+   "Please enter valid Customer Mobile Number"
+  ],
+  "fields": [
+   {
+    "label": "<biller param e.g. Loan Account Number>",
+    "type": "text/number/date/dropdown per biller param",
+    "hint": "<param name>"
+   },
+   {
+    "label": "Remitter Name",
+    "type": "text (gibberish-regex check)",
+    "hint": "Remitter Name"
+   },
+   {
+    "label": "Enter Amount",
+    "type": "decimal (only for no-fetch billers, billFetchFlag=ns)",
+    "hint": "Enter Amount"
+   }
+  ],
+  "buttons": [
+   "Single repayment",
+   "Bulk repayment",
+   "Change",
+   "Cash",
+   "UPI",
+   "Fetch bill details >"
+  ],
+  "api": [
+   {
+    "method": "POST",
+    "path": "bbpsservices/fetchautofilldata/1.0/APP/{clientId}",
+    "request_fields": [
+     "billerId",
+     "catId"
+    ],
+    "response_fields_used": [
+     "autofill values"
+    ]
+   },
+   {
+    "method": "POST",
+    "path": "commision-cashback/api/instant/commissionSlabs",
+    "request_fields": [],
+    "response_fields_used": [
+     "slabs"
+    ]
+   }
+  ],
+  "next": [
+   {
+    "to": "fetch-loader",
+    "condition": "billFetchFlag=m, CTA 'Fetch bill details >'"
+   },
+   {
+    "to": "confirm-sheet",
+    "condition": "billFetchFlag=ns, CTA 'Pay Now'"
+   },
+   {
+    "to": "bill-entry-bulk-tab",
+    "condition": "taps 'Bulk repayment' (toggle visible only if bulkEnabledFlag=Y AND biller isBulkPaymentEnabled=Y AND bulkUploadMethod contains CAMERA_SCAN or EXCEL)"
+   }
+  ],
+  "notes": "Remitter fields are shown when biller captureRemitter=Y. The segmented control is hidden otherwise. Selected-tab colour #293897 with bg_segmented_control_selected; unselected #666C8C."
+ },
+ {
+  "id": "fetch-loader",
+  "path": "single",
+  "screen_class": "BBPSBillEntryActivity (progress dialog)",
+  "layout": "progress dialog",
+  "title": "",
+  "texts": [
+   "Getting Bill, Please wait!"
+  ],
+  "fields": [],
+  "buttons": [],
+  "api": [
+   {
+    "method": "POST",
+    "path": "bbpswsapi/app/ws/fetchbill/v1/fb",
+    "request_fields": [
+     "billerId",
+     "billerParam[]",
+     "customerMobileNo",
+     "paymentMode",
+     "otpId",
+     "remitterName",
+     "responseType=SYNC"
+    ],
+    "response_fields_used": [
+     "fetchBillRefId",
+     "responseCode",
+     "responseDesc"
+    ]
+   },
+   {
+    "method": "POST",
+    "path": "bbpswsapi/app/ws/billresp/v1/pbr",
+    "request_fields": [
+     "fetchBillRefId"
+    ],
+    "response_fields_used": [
+     "payload.bills[]",
+     "responseCode",
+     "responseDesc"
+    ]
+   }
+  ],
+  "next": [
+   {
+    "to": "bill-detail-single",
+    "condition": "bill(s) returned"
+   },
+   {
+    "to": "dialog-fetch-error",
+    "condition": "failure / 301 / no bill due"
+   }
+  ],
+  "notes": "billresp polled up to 3x with BBPS_API_DELAY_SECONDS (default 20 s)."
+ },
+ {
+  "id": "dialog-fetch-error",
+  "path": "single",
+  "screen_class": "AlertDialog",
+  "layout": "alert",
+  "title": "",
+  "texts": [
+   "<server responseDesc, e.g. no bill due>",
+   "Failed to parse bill details. Please try again."
+  ],
+  "fields": [],
+  "buttons": [
+   "OK"
+  ],
+  "api": [],
+  "next": [
+   {
+    "to": "bill-entry-single",
+    "condition": "OK"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "id": "bill-detail-single",
+  "path": "single",
+  "screen_class": "spice.mudra.bbps.v2.bill.detail.BBPSBillDetailActivity",
+  "layout": "activity_bbps_bill_detail + item_multiple_bill_card",
+  "title": "<biller>",
+  "texts": [
+   "Customer Name",
+   "Customer Mobile Number",
+   "Remitter Name",
+   "Bill Number",
+   "View More",
+   "Bill Amount",
+   "Amount",
+   "Minimum Allowed",
+   "Maximum Allowed",
+   "We have found N Loan Repayments against this number. You can pay one Loan Repayment at a time. (selectionType SINGLE)",
+   "We have found N Loan Repayments. You can pay all Loan Repayment at once. (selectionType MULTIPLE)",
+   "We have found N Loan Repayments against this Loan Repayment. (selectionType ALL)",
+   "<card> Bill id",
+   "Due: <date>",
+   "<bill amount>",
+   "Bill amount",
+   "Amount",
+   "PAYMENT MODE",
+   "Cash",
+   "UPI",
+   "Total Payable",
+   "Pay",
+   "Please select bill to pay",
+   "Amount in <EMI amount tag | selected option> is incorrect",
+   "Entered amount must be a multiple of <n>",
+   "Amount should be between <min> and <max>",
+   "Amount should be in between <min> and <max>",
+   "Amount should be equal to or greater than <x>",
+   "Amount should be equal to or less than <x>",
+   "Amount should be less than <x>",
+   "Amount should be greater than <x>"
+  ],
+  "fields": [
+   {
+    "label": "Amount",
+    "type": "decimal (rule by amountType ADHOC/RANGE/ABOVE/BELOW)",
+    "hint": "Amount"
+   },
+   {
+    "label": "Bill amount (per EMI card)",
+    "type": "decimal",
+    "hint": "Amount"
+   }
+  ],
+  "buttons": [
+   "View More",
+   "<radio/checkbox per bill>",
+   "Cash",
+   "UPI",
+   "Pay"
+  ],
+  "api": [],
+  "next": [
+   {
+    "to": "confirm-sheet",
+    "condition": "valid amount/selection"
+   }
+  ],
+  "notes": "The category label in the note is the server category name passed as 'category'. Radio = SINGLE, checkbox = MULTIPLE, none = ALL."
+ },
+ {
+  "id": "confirm-sheet",
+  "path": "single",
+  "screen_class": "spice.mudra.bbps.v2.bill.dialogs.BBPSTransactionConfirmationDialog",
+  "layout": "bbps_transaction_confirmation_dialog",
+  "title": "Confirm bill payment of ₹X",
+  "texts": [
+   "Confirm bill payment of",
+   "APPLY COUPON",
+   "Coupon Code",
+   "Customer name",
+   "Mobile Number",
+   "Payment Mode",
+   "Bill Amount",
+   "Biller Platform Fee (Digital Fee)",
+   "Coupon Cashback",
+   "Retailer Commission",
+   "Gst Charges",
+   "You are paying for the following Bills",
+   "Customer convenience fee",
+   "CCF :",
+   "View CCF Slab",
+   "Enable for all future payments",
+   "Total customer pays",
+   "Confirm"
+  ],
+  "fields": [
+   {
+    "label": "Customer convenience fee",
+    "type": "decimal (editable CCF)",
+    "hint": ""
+   },
+   {
+    "label": "Coupon Code",
+    "type": "text",
+    "hint": "Coupon Code"
+   }
+  ],
+  "buttons": [
+   "APPLY COUPON",
+   "View CCF Slab",
+   "Enable for all future payments",
+   "Confirm"
+  ],
+  "api": [
+   {
+    "method": "POST",
+    "path": "bbpswsapi/app/ws/convfee/v1/cf",
+    "request_fields": [
+     "amount",
+     "billerId",
+     "ccfFlag",
+     "requestType=PayBillResponse"
+    ],
+    "response_fields_used": [
+     "custConvFee",
+     "platformFee",
+     "gst",
+     "agentComm",
+     "totalAmount"
+    ]
+   },
+   {
+    "method": "POST",
+    "path": "bbpswsapi/app/ws/updtsettings/v1/us",
+    "request_fields": [
+     "ccfFlag"
+    ],
+    "response_fields_used": [
+     "respCode"
+    ]
+   }
+  ],
+  "next": [
+   {
+    "to": "processing",
+    "condition": "Cash"
+   },
+   {
+    "to": "upi-qr",
+    "condition": "UPI"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "id": "upi-qr",
+  "path": "single",
+  "screen_class": "spice.mudra.bbps.v2.upi.BBPSUPIQRDisplayActivity",
+  "layout": "dialog_bbps_upi_qr_display",
+  "title": "Customer QR",
+  "texts": [
+   "Customer QR",
+   "Bill Amount",
+   "<countdown>",
+   "Download",
+   "Share",
+   "check your payment status here",
+   "Checking payment status...",
+   "Confirm Exit",
+   "Are you sure you want to go back? Your payment process will be interrupted.",
+   "Session timed out. Please generate a new QR code to continue."
+  ],
+  "fields": [],
+  "buttons": [
+   "Download",
+   "Share"
+  ],
+  "api": [
+   {
+    "method": "POST",
+    "path": "bbpsservices/upi/generateQr/1.0/APP/{clientId}",
+    "request_fields": [
+     "amount",
+     "billerId"
+    ],
+    "response_fields_used": [
+     "qr",
+     "pgOrderId",
+     "expiryTimeMins"
+    ]
+   },
+   {
+    "method": "POST",
+    "path": "bbpsservices/upi/txnStatusChk/1.0/APP/{clientId}",
+    "request_fields": [
+     "pgOrderId"
+    ],
+    "response_fields_used": [
+     "status"
+    ]
+   }
+  ],
+  "next": [
+   {
+    "to": "processing",
+    "condition": "customer paid"
+   },
+   {
+    "to": "bill-entry-single",
+    "condition": "expired / back"
+   }
+  ],
+  "notes": "Only if the biller allows UPI and the adhikari is UPI-onboarded (flow 05)."
+ },
+ {
+  "id": "processing",
+  "path": "single",
+  "screen_class": "BBPSBillDetailActivity / BBPSBillEntryActivity (progress)",
+  "layout": "progress dialog",
+  "title": "",
+  "texts": [
+   "Processing payment, Please wait!"
+  ],
+  "fields": [],
+  "buttons": [],
+  "api": [
+   {
+    "method": "POST",
+    "path": "bbpswsapi/app/ws/paybill/v2/fpb",
+    "request_fields": [
+     "fetchBillRefId",
+     "amount",
+     "custConvFee",
+     "couponCode",
+     "paymentMode",
+     "pgOrderId",
+     "remitterName"
+    ],
+    "response_fields_used": [
+     "responseStatus",
+     "responseCode",
+     "balance",
+     "txnRefId"
+    ]
+   },
+   {
+    "method": "POST",
+    "path": "bbpswsapi/app/ws/qpaybill/v2/qpb",
+    "request_fields": [
+     "billerParam[]",
+     "amount",
+     "custConvFee",
+     "ccfTransFlag"
+    ],
+    "response_fields_used": [
+     "responseStatus",
+     "responseCode"
+    ]
+   }
+  ],
+  "next": [
+   {
+    "to": "receipt",
+    "condition": "accepted"
+   },
+   {
+    "to": "dialog-low-wallet",
+    "condition": "responseStatus=P and responseCode=SIB"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "id": "dialog-low-wallet",
+  "path": "single",
+  "screen_class": "spice.mudra.bbps.v2.bill.dialogs.BBPSLowWalletBalanceDialog",
+  "layout": "dialog_bbps_low_wallet_balance",
+  "title": "Low Wallet Balance",
+  "texts": [
+   "Low Wallet Balance",
+   "Add ₹{shortfall} to your wallet to complete this payment.",
+   "Add ₹{shortfall} balance",
+   "Cancel"
+  ],
+  "fields": [],
+  "buttons": [
+   "Add ₹{shortfall} balance",
+   "Cancel"
+  ],
+  "api": [],
+  "next": [
+   {
+    "to": "wallet",
+    "condition": "Add balance"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "id": "receipt",
+  "path": "single",
+  "screen_class": "spice.mudra.bbps.v2.receipt.BBPSPaymentReceiptActivity",
+  "layout": "activity_bbps_bill_payment_receipt",
+  "title": "Bill Payment Successful",
+  "texts": [
+   "Processing Payment",
+   "Please do not close this page",
+   "Bill Payment Successful",
+   "Pending",
+   "Payment Failed",
+   "Try Again",
+   "Inc all taxes",
+   "Loan Number",
+   "<loan number> (tap to copy)",
+   "Customer Name",
+   "Mobile Number",
+   "B-Connect Txn ID",
+   "Biller ID",
+   "Approval/Biller reference no",
+   "Consumer ID",
+   "Payment Mode",
+   "Payment Channel",
+   "Bill Number",
+   "Bill Date",
+   "Bill amount",
+   "Conv. Fee",
+   "Platform Fee",
+   "Total",
+   "Adhikari BBPS ID & Name",
+   "Customer Receipt",
+   "WhatsApp",
+   "Share",
+   "Download",
+   "Print",
+   "Repeat Bill",
+   "New Bill",
+   "History",
+   "Help",
+   "Home",
+   "Loan Number Copied",
+   "Loan Number Should not Blank"
+  ],
+  "fields": [],
+  "buttons": [
+   "Loan Number copy",
+   "WhatsApp",
+   "Share",
+   "Download",
+   "Print",
+   "Repeat Bill",
+   "New Bill",
+   "History",
+   "Help",
+   "Home"
+  ],
+  "api": [
+   {
+    "method": "POST",
+    "path": "bbpswsapi/app/ws/billresp/v2/pbr",
+    "request_fields": [
+     "txnRefId"
+    ],
+    "response_fields_used": [
+     "responseCode (000/001/301)",
+     "payload.dynamicData[] (loan param)",
+     "totalAmount"
+    ]
+   }
+  ],
+  "next": [
+   {
+    "to": "mobile-entry",
+    "condition": "New Bill"
+   }
+  ],
+  "notes": "Loan Number is taken from the first dynamicData param whose name contains 'loan'. One render path hides the Loan Number row when the category contains 'loan' (looks inverted)."
+ },
+ {
+  "id": "bill-entry-bulk-tab",
+  "path": "common",
+  "screen_class": "spice.mudra.bbps.v2.bill.entry.BBPSBillEntryActivity (bulk tab)",
+  "layout": "activity_bbps_bill_entry#bulk_payment_layout",
+  "title": "<biller display name>",
+  "texts": [
+   "Single repayment",
+   "Bulk repayment",
+   "Bulk Upload Options",
+   "How to use?",
+   "Click Photo of document",
+   "Capture image of the EMI list. We will read and fill the details for you automatically.",
+   "Upload Excel File",
+   "Download and fill excel sheet and upload it",
+   "Download Sample Format"
+  ],
+  "fields": [],
+  "buttons": [
+   "Single repayment",
+   "Bulk repayment",
+   "How to use?",
+   "Click Photo of document",
+   "Upload Excel File",
+   "Download Sample Format"
+  ],
+  "api": [],
+  "next": [
+   {
+    "to": "sheet-how-to-use",
+    "condition": "How to use?"
+   },
+   {
+    "to": "sheet-scan-document",
+    "condition": "Click Photo of document (visible if bulkUploadMethod contains CAMERA_SCAN)"
+   },
+   {
+    "to": "document-uploaded",
+    "condition": "Upload Excel File (visible if bulkUploadMethod contains EXCEL; click handler attached only if CAMERA_SCAN is also present)"
+   },
+   {
+    "to": "download-sample",
+    "condition": "Download Sample Format"
+   }
+  ],
+  "notes": "Customer form card, payment mode and the CTA (llGetBill) are hidden on this tab. Path covers both bulk-photo and bulk-excel."
+ },
+ {
+  "id": "sheet-how-to-use",
+  "path": "common",
+  "screen_class": "BottomSheetDialog (BBPSBillEntryActivity.lambda$initBulkBBPSHowToUseButton$31)",
+  "layout": "bottom_sheet_bulk_repayment_guide",
+  "title": "How Bulk Loan Repayment works?",
+  "texts": [
+   "How Bulk Loan\nRepayment works?"
+  ],
+  "fields": [],
+  "buttons": [
+   "Close (X)",
+   "Play (btnWatchNow)",
+   "Phone screenshot"
+  ],
+  "api": [],
+  "next": [
+   {
+    "to": "YouTube app (vnd.youtube:<id>)",
+    "condition": "tap play/screenshot"
+   }
+  ],
+  "notes": "Video id from cached 'video_category_result' help videos → bulkBBPS[0], English or Hindi by language."
+ },
+ {
+  "id": "download-sample",
+  "path": "bulk-excel",
+  "screen_class": "BBPSBillEntryActivity.callDownloadSampleAPI",
+  "layout": "ProgressBarHandler + system notification",
+  "title": "",
+  "texts": [
+   "Getting download link...",
+   "<Biller>_Sample_<yyyyMMdd_HHmmss>.xlsx",
+   "Downloads",
+   "Download already in progress...",
+   "Data is missing",
+   "Failed to get download link ",
+   "Failed to get download link: <msg>",
+   "No file data found",
+   "Invalid response data"
+  ],
+  "fields": [],
+  "buttons": [],
+  "api": [
+   {
+    "method": "POST",
+    "path": "bbpsservices/bulk/samplesheet/1.0/APP/{clientId}",
+    "request_fields": [
+     "billerId",
+     "catId",
+     "state",
+     "city"
+    ],
+    "response_fields_used": [
+     "payload.excelBytes (base64)",
+     "respDesc"
+    ]
+   }
+  ],
+  "next": [
+   {
+    "to": "bill-entry-bulk-tab",
+    "condition": "saved; notification opens Downloads/file"
+   }
+  ],
+  "notes": "Saved to Downloads (fallback Documents), MIME application/vnd.openxmlformats-officedocument.spreadsheetml.sheet. 'Data is missing' if the biller has no state/city/catId."
+ },
+ {
+  "id": "document-uploaded",
+  "path": "bulk-excel",
+  "screen_class": "spice.mudra.bbps.bulkPayment.BBPSDocumentUploadedActivity",
+  "layout": "activity_bbps_document_uploaded",
+  "title": "Document Uploaded",
+  "texts": [
+   "Document Uploaded",
+   "<file name>",
+   "Upload",
+   "Reupload",
+   "Extract User Data",
+   "Please select a valid Excel file (.xls or .xlsx)",
+   "Error processing selected file: <msg>",
+   "Error opening file picker: <msg>",
+   "No valid file to process",
+   "File path or biller information not available"
+  ],
+  "fields": [
+   {
+    "label": "Excel file",
+    "type": "file (GetContent '*/*'; accepted .xls .xlsx .xlsm .xltx .xltm .xlsb)",
+    "hint": ""
+   }
+  ],
+  "buttons": [
+   "Back",
+   "Upload / Reupload",
+   "Extract User Data (disabled, alpha 0.5, until a file is picked)"
+  ],
+  "api": [],
+  "next": [
+   {
+    "to": "fetching-details",
+    "condition": "Extract User Data with a valid file"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "id": "fetching-details",
+  "path": "bulk-excel",
+  "screen_class": "spice.mudra.bbps.bulkPayment.BBPSFetchingDetailsActivity",
+  "layout": "activity_bbps_fetching_details",
+  "title": "Fetching Details",
+  "texts": [
+   "Fetching Details",
+   "Fetching Details",
+   "Fetching bill details from the data"
+  ],
+  "fields": [],
+  "buttons": [],
+  "api": [
+   {
+    "method": "POST (multipart)",
+    "path": "bbpsservices/bulk/extractfile/1.0/APP/{clientId}",
+    "request_fields": [
+     "file",
+     "data{clientId, lang=en, fileName, billerId, catId, state, city, requestType=EXCEL, token, bcAgentId}"
+    ],
+    "response_fields_used": [
+     "respCode",
+     "respDesc",
+     "payload.extractId",
+     "payload.customerData[]",
+     "payload.bbpsFormFieldConfigs[]",
+     "payload.headersExtracted"
+    ]
+   }
+  ],
+  "next": [
+   {
+    "to": "customer-details",
+    "condition": "respCode 00"
+   },
+   {
+    "to": "dialog-bulk-error",
+    "condition": "any other code"
+   },
+   {
+    "to": "logout",
+    "condition": "099"
+   }
+  ],
+  "notes": "Back cancels. Progress jumps to 100 % and waits 1 s before navigating."
+ },
+ {
+  "id": "sheet-scan-document",
+  "path": "bulk-photo",
+  "screen_class": "BottomSheetDialog (BBPSBillEntryActivity.showScanDocumentBottomSheet)",
+  "layout": "bottom_sheet_bbps_scan_document",
+  "title": "Scan Document",
+  "texts": [
+   "Scan Document",
+   "Open Camera",
+   "Capture a new image from your camera",
+   "Pick from Phone gallery",
+   "Select an existing image from your gallery"
+  ],
+  "fields": [],
+  "buttons": [
+   "Close (X)",
+   "Open Camera",
+   "Pick from Phone gallery"
+  ],
+  "api": [],
+  "next": [
+   {
+    "to": "crop-document",
+    "condition": "Open Camera (needs CAMERA permission) → system camera (IMAGE_CAPTURE) → photo taken"
+   },
+   {
+    "to": "crop-document",
+    "condition": "Pick from Phone gallery → system picker (ACTION_PICK images) → image chosen"
+   }
+  ],
+  "notes": "Camera saves via FileProvider in.spicemudra.fileprovider. Toast 'Failed to get image from camera' on failure."
+ },
+ {
+  "id": "crop-document",
+  "path": "bulk-photo",
+  "screen_class": "com.yalantis.ucrop.UCropActivity",
+  "layout": "ucrop",
+  "title": "Crop Document",
+  "texts": [
+   "Crop Document",
+   "Crop error: <msg | Unknown error>",
+   "Error launching crop activity",
+   "Failed to get file path from image or biller information",
+   "Error processing image"
+  ],
+  "fields": [],
+  "buttons": [
+   "Cancel (white cross)",
+   "Done (white arrow)"
+  ],
+  "api": [],
+  "next": [
+   {
+    "to": "scanning-document",
+    "condition": "crop done"
+   }
+  ],
+  "notes": "Free-style crop, 3x3 grid, max 2048x2048, black status bar."
+ },
+ {
+  "id": "scanning-document",
+  "path": "bulk-photo",
+  "screen_class": "spice.mudra.bbps.bulkPayment.BBPSScanningDocumentActivity",
+  "layout": "activity_bbps_scanning_document",
+  "title": "Scanning Document",
+  "texts": [
+   "Scanning Document",
+   "Scanning...",
+   "Extracting details from document",
+   "File not found: The selected file does not exist",
+   "Access denied: Cannot read the selected image file. Please check file permissions",
+   "Invalid file: The selected image file is empty",
+   "File too large: The selected image file is too large (max 50MB)",
+   "Memory error: The image file is too large to process",
+   "Permission denied: Cannot access the selected image file",
+   "Unexpected error: <msg>",
+   "Invalid file path: No file selected",
+   "No internet connection",
+   "Invalid parameters provided",
+   "No data found in the document",
+   "Biller information is missing"
+  ],
+  "fields": [],
+  "buttons": [],
+  "api": [
+   {
+    "method": "POST (multipart)",
+    "path": "bbpsservices/bulk/extractfile/1.0/APP/{clientId}",
+    "request_fields": [
+     "file",
+     "data{clientId, lang=en, fileName, billerId, catId, state, city, requestType=CAMERA_SCAN, token, bcAgentId}"
+    ],
+    "response_fields_used": [
+     "respCode",
+     "respDesc",
+     "payload.extractId",
+     "payload.headersExtracted",
+     "payload.customerData[]",
+     "payload.bbpsFormFieldConfigs[]"
+    ]
+   }
+  ],
+  "next": [
+   {
+    "to": "customer-details",
+    "condition": "respCode 00"
+   },
+   {
+    "to": "import-data",
+    "condition": "respCode 01 with headers"
+   },
+   {
+    "to": "dialog-bulk-error",
+    "condition": "respCode 01 with no headers ('No data found in the document'), 02, or other"
+   },
+   {
+    "to": "dialog-exit-scanning",
+    "condition": "back"
+   }
+  ],
+  "notes": "Progress bar starts at 50 %, set to 100 % on success, then 1 s delay. File-size cap 52,428,800 bytes."
+ },
+ {
+  "id": "dialog-exit-scanning",
+  "path": "bulk-photo",
+  "screen_class": "AlertDialog",
+  "layout": "alert",
+  "title": "Exit Scanning",
+  "texts": [
+   "Exit Scanning",
+   "Are you sure you want to exit the scanning process?",
+   "Yes, Exit",
+   "Cancel"
+  ],
+  "fields": [],
+  "buttons": [
+   "Yes, Exit",
+   "Cancel"
+  ],
+  "api": [],
+  "next": [
+   {
+    "to": "bill-entry-bulk-tab",
+    "condition": "Yes, Exit"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "id": "import-data",
+  "path": "bulk-photo",
+  "screen_class": "spice.mudra.bbps.bulkPayment.BBPSImportDataActivity",
+  "layout": "activity_bbps_import_data + item_column_mapping",
+  "title": "Import Data",
+  "texts": [
+   "Import Data",
+   "Extracted Columns from document",
+   "Below are the columns detected from your uploaded document/image. Map the extracted columns with the target field to proceed.",
+   "Extracted Field",
+   "Select",
+   "Target Field",
+   "<param name | Unknown Parameter>",
+   "Mapped automatically",
+   "Mapped",
+   "Needs mapping",
+   "Mapping Optional",
+   "Continue",
+   "Are you sure you want to go back?",
+   "Yes",
+   "No",
+   "Unexpected response code: <code> - <desc>",
+   "Biller information is missing"
+  ],
+  "fields": [
+   {
+    "label": "Extracted Field (one per target field)",
+    "type": "spinner of extracted headers + 'Select'",
+    "hint": "Select"
+   }
+  ],
+  "buttons": [
+   "Back",
+   "Continue (enabled when every EXTERNAL field is mapped)"
+  ],
+  "api": [
+   {
+    "method": "POST (multipart, no file)",
+    "path": "bbpsservices/bulk/extractfile/1.0/APP/{clientId}",
+    "request_fields": [
+     "clientId",
+     "extractId",
+     "billerId",
+     "catId",
+     "state",
+     "city",
+     "requestType=HEADER_MAPPING",
+     "headerMapping[]{paramName, paramValue}"
+    ],
+    "response_fields_used": [
+     "respCode",
+     "respDesc",
+     "payload.customerData[]"
+    ]
+   }
+  ],
+  "next": [
+   {
+    "to": "customer-details",
+    "condition": "respCode 00"
+   },
+   {
+    "to": "dialog-bulk-error",
+    "condition": "02 / other"
+   }
+  ],
+  "notes": "Two lists: auto-matched (top) and needing mapping (bottom). INTERNAL fields are optional; EXTERNAL fields are required."
+ },
+ {
+  "id": "dialog-bulk-error",
+  "path": "common",
+  "screen_class": "BBPSBulkPaymentUtils.a / BBPSFetchingDetailsActivity.B0",
+  "layout": "AlertDialog",
+  "title": "Error",
+  "texts": [
+   "Error",
+   "<server respDesc or local message>",
+   "OK"
+  ],
+  "fields": [],
+  "buttons": [
+   "OK"
+  ],
+  "api": [],
+  "next": [
+   {
+    "to": "previous screen (activity finishes)",
+    "condition": "OK"
+   }
+  ],
+  "notes": "Shared by all bulk screens; not cancellable."
+ },
+ {
+  "id": "customer-details",
+  "path": "common",
+  "screen_class": "spice.mudra.bbps.bulkPayment.BBPSCustomerDetailsActivity",
+  "layout": "activity_bbps_customer_details + item_bbps_customer_card",
+  "title": "Found N customer entries",
+  "texts": [
+   "Found %1$d customer entries",
+   "<biller name | Unknown Biller>",
+   "Operator",
+   "Add Prefix to all Loan ID/Number",
+   "Add Prefix",
+   "Add prefix to all Loan ID/Number at once for required micro-finance agencies (one-time tooltip)",
+   "Missed some Customers?",
+   "Add Customer",
+   "Some columns could not be detected",
+   "<missing field name>",
+   "Add",
+   "Customer Details",
+   "<card: field label: value>",
+   "Delete",
+   "Edit",
+   "Missing: <fields>",
+   "All fields are required",
+   "<field> (Required)",
+   "<field> (Minimum n characters required)",
+   "<field> (Maximum n characters allowed)",
+   "<field> (Numeric value required)",
+   "<field> (Invalid format)",
+   "<field> (Invalid alphanumeric format)",
+   "No customer details available. Please add some customer details to proceed.",
+   "Get Bill Details",
+   "Loading...",
+   "No customers available",
+   "Agent mobile number not found",
+   "Extract type not found",
+   "Error initiating bulk bill fetch: <msg>",
+   "Error occurred while fetching bill details",
+   "Invalid mobile number format. Please enter a valid 10-digit mobile number.",
+   "Invalid mobile number format for: <ids>. Please enter valid 10-digit mobile numbers.",
+   "Are you sure you want to go back?",
+   "Yes",
+   "No"
+  ],
+  "fields": [],
+  "buttons": [
+   "Back",
+   "Add Prefix",
+   "Add Customer",
+   "Add (missing field)",
+   "Edit",
+   "Delete",
+   "Get Bill Details"
+  ],
+  "api": [
+   {
+    "method": "POST",
+    "path": "bbpsservices/bulk/fetchbill/1.0/APP/{clientId}",
+    "request_fields": [
+     "agentMobileNo",
+     "billerId",
+     "responseType=SYNC",
+     "requestType=Fetch Bill",
+     "billCategory",
+     "billerName",
+     "paymentMode",
+     "extractId",
+     "extractType (CAMERA_SCAN|EXCEL)",
+     "addPrefixConsent (true|false)",
+     "prefixText",
+     "bulkBillFetchDetails[]{billerParam[]{paramName,paramValue}, customerMobileNo, customerName}"
+    ],
+    "response_fields_used": [
+     "payload.batchId",
+     "respDesc"
+    ]
+   }
+  ],
+  "next": [
+   {
+    "to": "sheet-add-edit-customer",
+    "condition": "Add Customer / Edit"
+   },
+   {
+    "to": "dialog-delete-customer",
+    "condition": "Delete"
+   },
+   {
+    "to": "sheet-add-prefix",
+    "condition": "Add Prefix"
+   },
+   {
+    "to": "dialog-add-missing-field",
+    "condition": "Add on missing-field row"
+   },
+   {
+    "to": "bulk-bill-details",
+    "condition": "Get Bill Details, all rows valid, batchId returned"
+   },
+   {
+    "to": "dialog-bulk-error",
+    "condition": "no batchId / error"
+   }
+  ],
+  "notes": "Get Bill Details is enabled only when the list is valid (alpha 0.5 otherwise). Customer Name is validated only if HomeINIT bulkBBPSNameValidationEnabled=y. Field validation uses the server regex, minLength, maxLength and dataType (NUMERIC/ALPHANUMERIC)."
+ },
+ {
+  "id": "sheet-add-edit-customer",
+  "path": "common",
+  "screen_class": "spice.mudra.bbps.bulkPayment.dialogs.BBPSAddEditCustomerBottomSheet",
+  "layout": "bottom_sheet_bbps_add_edit_customer",
+  "title": "Add Customer | Edit Customer",
+  "texts": [
+   "Add Customer",
+   "Edit Customer",
+   "<dynamic field hints; required ones suffixed ' **'>",
+   "Add",
+   "Edit",
+   "<param> is required",
+   "Please enter a value greater than 0.",
+   "Minimum n characters required",
+   "Maximum n characters allowed",
+   "Invalid <param>",
+   "Please fill all required fields correctly",
+   "Duplicate Data Found",
+   "The following data already exists: <values>",
+   "OK"
+  ],
+  "fields": [
+   {
+    "label": "<bbpsFormFieldConfigs[] e.g. Loan ID, Customer Name, Customer Mobile Number, Amount>",
+    "type": "text/number per dataType",
+    "hint": "<paramName>"
+   }
+  ],
+  "buttons": [
+   "Close",
+   "Add | Edit"
+  ],
+  "api": [],
+  "next": [
+   {
+    "to": "customer-details",
+    "condition": "saved"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "id": "dialog-delete-customer",
+  "path": "common",
+  "screen_class": "AlertDialog (bf0 case 2)",
+  "layout": "dialog_delete_bbps_customer",
+  "title": "Delete Item",
+  "texts": [
+   "Delete Item",
+   "Are you sure you want to delete this item? This can’t be undone",
+   "Delete",
+   "Cancel"
+  ],
+  "fields": [],
+  "buttons": [
+   "Close",
+   "Delete",
+   "Cancel"
+  ],
+  "api": [],
+  "next": [
+   {
+    "to": "customer-details",
+    "condition": "any"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "id": "sheet-add-prefix",
+  "path": "common",
+  "screen_class": "spice.mudra.bbps.bulkPayment.dialogs.BBPSAddPrefixBottomSheet",
+  "layout": "dialog_bbps_add_prefix",
+  "title": "Add Prefix | Edit Prefix",
+  "texts": [
+   "Add Prefix",
+   "Edit Prefix",
+   "Prefix",
+   "max %1$d characters allowed",
+   "I confirm that I am manually adding/modifying the Loan Account Number prefix and verify its correctness.",
+   "Add Prefix",
+   "Update"
+  ],
+  "fields": [
+   {
+    "label": "Prefix",
+    "type": "text, max length = addPrefixMaxLength (default 5)",
+    "hint": "Prefix"
+   }
+  ],
+  "buttons": [
+   "Close",
+   "Consent checkbox",
+   "Add Prefix | Update (enabled when prefix non-empty AND consent ticked)"
+  ],
+  "api": [],
+  "next": [
+   {
+    "to": "customer-details",
+    "condition": "applied; loan IDs render as '<PREFIX> <id>'"
+   }
+  ],
+  "notes": "Not cancellable by outside tap. The prefix is sent as prefixText with addPrefixConsent=true."
+ },
+ {
+  "id": "dialog-add-missing-field",
+  "path": "common",
+  "screen_class": "spice.mudra.bbps.bulkPayment.dialogs.BBPSAddMissingFieldDialog",
+  "layout": "dialog_add_missing_field",
+  "title": "Add Mobile Number",
+  "texts": [
+   "Add Mobile Number",
+   "Add a common value for all customers",
+   "Enter Value",
+   "OR",
+   "Add individual values for each customer",
+   "Add",
+   "Mobile number must be 10 digits",
+   "Mobile number must contain only digits",
+   "Mobile number must start with 6, 7, 8, or 9"
+  ],
+  "fields": [
+   {
+    "label": "Enter Value",
+    "type": "phone (common)",
+    "hint": "Enter Value"
+   },
+   {
+    "label": "<per-customer>",
+    "type": "phone",
+    "hint": ""
+   }
+  ],
+  "buttons": [
+   "Add"
+  ],
+  "api": [],
+  "next": [
+   {
+    "to": "customer-details",
+    "condition": "Add"
+   }
+  ],
+  "notes": "The only missing-field flow wired is the customer mobile number."
+ },
+ {
+  "id": "bulk-bill-details",
+  "path": "common",
+  "screen_class": "spice.mudra.bbps.bulkPayment.BBPSBillDetailsActivity",
+  "layout": "activity_bbps_bill_details + item_bill_detail (+ dialog_progress)",
+  "title": "Bill Details",
+  "texts": [
+   "Checking payment status... (progress dialog during fetch polling)",
+   "Bill Details",
+   "<biller>",
+   "Operator",
+   "Bill Details",
+   "<loan id with prefix>",
+   "Due Date: <d | ->",
+   "Bill Id: <id | ->",
+   "Bill Period: <p | ->",
+   "₹<amount>",
+   "Amount",
+   "Edit",
+   "No Bills Found",
+   "There are no bills to display at the moment. Please try again later.",
+   "** The amount for each bill may vary after applying the CCF on the bill payment screen.",
+   "Entries",
+   "<N> entries",
+   "Entries Discarded",
+   "<count>",
+   "Bill Amount",
+   "₹<total>",
+   "Low Wallet Balance:",
+   "Data mismatch—please verify before proceeding.",
+   "Enable CCF for all",
+   "Payment Mode",
+   "Cash",
+   "Confirm",
+   "Checking Mismatches",
+   "Please wait while we check for mismatched values...",
+   "Some bill entries were removed because the system couldn't retrieve the bill details.",
+   "No bill details found",
+   "Error occurred while fetching bill details",
+   "Error occurred while checking mismatches",
+   "Field matched successfully",
+   "Confirm Exit",
+   "Are you sure you want to go back?",
+   "Yes",
+   "No"
+  ],
+  "fields": [],
+  "buttons": [
+   "Back",
+   "Edit (per bill)",
+   "Low Wallet Balance strip",
+   "Data mismatch strip",
+   "Enable CCF for all",
+   "Confirm"
+  ],
+  "api": [
+   {
+    "method": "POST",
+    "path": "bbpsservices/bulk/billstatus/1.0/APP/{clientId}",
+    "request_fields": [
+     "batchId",
+     "requestType=FETCH",
+     "status=ALL"
+    ],
+    "response_fields_used": [
+     "payload.txnDetails[]{customerName, mobileNumber, billId, dueDate, billPeriod, amount, referenceId, dynamicFields[], status}",
+     "payload.reCheckFlag"
+    ]
+   },
+   {
+    "method": "POST",
+    "path": "bbpsservices/bulk/mismatch-check/1.0/APP/{clientId}",
+    "request_fields": [
+     "batchId",
+     "mappedData (customer data)"
+    ],
+    "response_fields_used": [
+     "payload[] (BulkMismatchItem)"
+    ]
+   },
+   {
+    "method": "POST",
+    "path": "agent/dtls (wallet balance refresh)",
+    "request_fields": [],
+    "response_fields_used": [
+     "balance"
+    ]
+   }
+  ],
+  "next": [
+   {
+    "to": "sheet-mismatch-warning",
+    "condition": "mismatch payload non-empty"
+   },
+   {
+    "to": "dialog-edit-amount",
+    "condition": "Edit"
+   },
+   {
+    "to": "wallet",
+    "condition": "tap Low Wallet Balance (returns with refresh)"
+   },
+   {
+    "to": "mismatch-review",
+    "condition": "tap mismatch strip"
+   },
+   {
+    "to": "bulk-bills-review",
+    "condition": "Confirm (enabled only if 0 < total <= wallet balance and no open mismatches)"
+   }
+  ],
+  "notes": "Polling: interval bulkStatusFetchInterval (default 5000 ms), max bulkStatusFetchMaxAttemps (default 30) until reCheckFlag=N. Only SUCCESS/PENDING bills are kept. Payment mode is fixed to Cash."
+ },
+ {
+  "id": "dialog-edit-amount",
+  "path": "common",
+  "screen_class": "spice.mudra.bbps.bulkPayment.dialogs.BBPSEditAmountDialog",
+  "layout": "dialog_edit_amount",
+  "title": "Edit Amount",
+  "texts": [
+   "Edit Amount",
+   "Enter new amount",
+   "Update",
+   "Amount cannot be empty",
+   "Amount must be greater than 0",
+   "Amount cannot exceed 999,999,999.99",
+   "Please enter a valid amount",
+   "No changes made to amount"
+  ],
+  "fields": [
+   {
+    "label": "Amount",
+    "type": "decimal (2 dp filter)",
+    "hint": "Enter new amount"
+   }
+  ],
+  "buttons": [
+   "Close",
+   "Update"
+  ],
+  "api": [],
+  "next": [
+   {
+    "to": "bulk-bill-details",
+    "condition": "Update"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "id": "sheet-mismatch-warning",
+  "path": "common",
+  "screen_class": "BottomSheetDialog (BBPSBillDetailsActivity.showMismatchWarningBottomSheet)",
+  "layout": "bottom_sheet_mismatch_warning",
+  "title": "⚠️ Data Mismatch Warning",
+  "texts": [
+   "⚠️ Data Mismatch Warning",
+   "We found discrepancies between your uploaded data and NPCI records.",
+   "Some customer names and bill amounts don't match our system data. Please review and confirm before proceeding.",
+   "We've cross-verified your data with NPCI records. Please resolve discrepancies to ensure successful payments.",
+   "⚠️ Proceeding with unmatched data will result in failed transactions for those customers.",
+   "Review Mismatches"
+  ],
+  "fields": [],
+  "buttons": [
+   "Close",
+   "Review Mismatches"
+  ],
+  "api": [],
+  "next": [
+   {
+    "to": "mismatch-review",
+    "condition": "Review Mismatches"
+   },
+   {
+    "to": "bulk-bill-details",
+    "condition": "Close"
+   }
+  ],
+  "notes": "Not cancellable by outside tap."
+ },
+ {
+  "id": "mismatch-review",
+  "path": "common",
+  "screen_class": "spice.mudra.bbps.bulkPayment.BBPSMismatchReviewActivity",
+  "layout": "activity_bbps_mismatch_review + item_bbps_mismatch",
+  "title": "Mismatching Values from Biller (NPCI)",
+  "texts": [
+   "Mismatching Values from Biller (NPCI)",
+   "We have found X mismatching values from Y bills",
+   "Extracted Value",
+   "Biller Value",
+   "Loan ID: ",
+   "<loan id>",
+   "Name",
+   "Amount",
+   "Name",
+   "Amount",
+   "Discard Entry",
+   "Accept Billed Value"
+  ],
+  "fields": [],
+  "buttons": [
+   "Close",
+   "Discard Entry",
+   "Accept Billed Value"
+  ],
+  "api": [],
+  "next": [
+   {
+    "to": "bulk-bill-details",
+    "condition": "close/back; returns result_approved_loan_ids / result_denied_loan_ids"
+   }
+  ],
+  "notes": "Name and Amount rows appear only for the mismatched attribute."
+ },
+ {
+  "id": "bulk-bills-review",
+  "path": "common",
+  "screen_class": "spice.mudra.bbps.bulkPayment.BBPSBulkBillsReviewActivity",
+  "layout": "activity_bbps_bulk_bills_review + item_bulk_loan_bill",
+  "title": "Payment",
+  "texts": [
+   "Payment",
+   "<biller>",
+   "Operator",
+   "<loan id>",
+   "Due Date: <d>",
+   "Bill Id: <id>",
+   "Bill Period: <p>",
+   "₹<amount>",
+   "AMOUNT",
+   "** The amount for each bill may vary after applying the CCF on the bill payment screen.",
+   "I have read, understood, and agree to the declaration",
+   "Proceed to Pay",
+   "No bill details available"
+  ],
+  "fields": [],
+  "buttons": [
+   "Back",
+   "Declaration checkbox",
+   "'declaration' link",
+   "Proceed to Pay"
+  ],
+  "api": [],
+  "next": [
+   {
+    "to": "sheet-declaration",
+    "condition": "tap 'declaration'"
+   },
+   {
+    "to": "bulk-repayment-detail",
+    "condition": "Proceed to Pay (declaration ticked)"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "id": "sheet-declaration",
+  "path": "common",
+  "screen_class": "BottomSheetDialog (BBPSBulkBillsReviewActivity)",
+  "layout": "bottom_sheet_bulk_bbps_declaration",
+  "title": "📋 IMPORTANT DECLARATION",
+  "texts": [
+   "📋 IMPORTANT DECLARATION",
+   "By proceeding with this bulk payment, I confirm that:",
+   "✓ I have personally reviewed all customer details, loan IDs, and amounts",
+   "✓ I understand that AI-assisted data extraction may contain errors",
+   "✓ I have verified each entry against original loan documents",
+   "✓ I take full responsibility for any incorrect payments processed",
+   "✓ Any losses due to wrong payments will be borne by me",
+   "Okay"
+  ],
+  "fields": [],
+  "buttons": [
+   "Close",
+   "Okay"
+  ],
+  "api": [],
+  "next": [
+   {
+    "to": "bulk-bills-review",
+    "condition": "any"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "id": "bulk-repayment-detail",
+  "path": "common",
+  "screen_class": "spice.mudra.bbps.bulkPayment.BBPSBulkRepaymentDetailActivity",
+  "layout": "activity_bbps_bulk_bill_payment_detail",
+  "title": "Payment confirmation",
+  "texts": [
+   "Payment confirmation",
+   "<k>/<N>",
+   "View Payment Status",
+   "<biller>",
+   "Loan Repayment",
+   "<customer name | Unknown Customer>",
+   "Mobile Number",
+   "<mobile>",
+   "Agency Code",
+   "<agency code>",
+   "Bill Amount",
+   "₹<amount>",
+   "Biller Platform Fee (Digital Fee)",
+   "₹<fee>",
+   "CCF",
+   "₹<ccf>",
+   "GST Charges",
+   "₹<gst>",
+   "Total",
+   "₹<total>",
+   "This payment should be skipped as the amount is ₹0.",
+   "Retailer commission: ₹ <x>",
+   "VIEW SLABS",
+   "<instant cashback note>",
+   "Skip Payment",
+   "Pay Now",
+   "Bill payment successful",
+   "Bill payment failed: <desc>",
+   "Payment failed",
+   "Invalid payment response",
+   "Something went wrong",
+   "Error occurred while processing bill",
+   "Error occurred while fetching status",
+   "No internet connection. Please check your connection and try again.",
+   "No current bill found",
+   "Invalid biller ID",
+   "Bill skipped.",
+   "Processing last bill...",
+   "Failed to skip bill. Please try again.",
+   "Failed to update CCF settings",
+   "No Slabs found",
+   "No bill details found"
+  ],
+  "fields": [
+   {
+    "label": "CCF",
+    "type": "checkbox",
+    "hint": ""
+   }
+  ],
+  "buttons": [
+   "Sound toggle",
+   "View Payment Status",
+   "CCF checkbox",
+   "VIEW SLABS",
+   "Skip Payment",
+   "Pay Now"
+  ],
+  "api": [
+   {
+    "method": "POST",
+    "path": "bbpsservices/custconvfees/1.0/APP/{clientId}",
+    "request_fields": [
+     "billerId",
+     "amount",
+     "ver=2.0"
+    ],
+    "response_fields_used": [
+     "fee slabs"
+    ]
+   },
+   {
+    "method": "POST",
+    "path": "bbpswsapi/app/ws/convfee/v1/cf",
+    "request_fields": [
+     "amount",
+     "ccfFlag",
+     "billerId",
+     "requestType=PayBillResponse"
+    ],
+    "response_fields_used": [
+     "convenienceFee",
+     "totalAmount",
+     "gstCharges",
+     "agentComm",
+     "platformFee"
+    ]
+   },
+   {
+    "method": "POST",
+    "path": "bbpswsapi/app/ws/paybill/v2/fpb",
+    "request_fields": [
+     "fetchBillRefId=<referenceId>",
+     "ccfTransFlag",
+     "requestType=PAY_BILL_REQUEST",
+     "paymentChannel",
+     "responseType=SYNC",
+     "paymentMode=CASH",
+     "mobileNo",
+     "customerMobileNo",
+     "billerId",
+     "billerName",
+     "billCategory",
+     "customerName",
+     "additionalInfoTag[]",
+     "couponCode",
+     "custConvFee",
+     "billerParam[]",
+     "billDetails{customerName}",
+     "billResponseTag[]"
+    ],
+    "response_fields_used": [
+     "responseStatus",
+     "responseCode (000/F01/SIB)",
+     "responseDesc"
+    ]
+   },
+   {
+    "method": "POST",
+    "path": "bbpswsapi/app/ws/billresp/v1/pbr",
+    "request_fields": [
+     "fetchBillRefId",
+     "paymentMode=CASH",
+     "ccfTransFlag",
+     "requestType=BILL_PAY_REQUEST"
+    ],
+    "response_fields_used": [
+     "responseStatus",
+     "responseCode",
+     "responseDesc"
+    ]
+   },
+   {
+    "method": "POST",
+    "path": "bbpsservices/bulk/skippayment/1.0/APP/{clientId}",
+    "request_fields": [
+     "lang=en",
+     "refid",
+     "batchId"
+    ],
+    "response_fields_used": [
+     "respCode"
+    ]
+   },
+   {
+    "method": "POST",
+    "path": "bbpswsapi/app/ws/updtsettings/v1/us",
+    "request_fields": [
+     "ccfFlag"
+    ],
+    "response_fields_used": [
+     "respCode"
+    ]
+   }
+  ],
+  "next": [
+   {
+    "to": "sheet-payment-status",
+    "condition": "View Payment Status"
+   },
+   {
+    "to": "dialog-ccf-slabs",
+    "condition": "VIEW SLABS"
+   },
+   {
+    "to": "bulk-repayment-detail",
+    "condition": "after Pay/Skip → next bill"
+   },
+   {
+    "to": "bulk-payment-summary",
+    "condition": "last bill done"
+   },
+   {
+    "to": "dialog-exit-bulk-pay",
+    "condition": "back"
+   },
+   {
+    "to": "dialog-bulk-error",
+    "condition": "F01 / SIB"
+   }
+  ],
+  "notes": "Bills are paid one at a time; the progress bar tracks k/N. After a successful pay the app waits BBPS_API_DELAY_SECONDS (default 5) before the status call. A voice clip (bbpsTxnSonic) plays on success if the sound toggle is on (pref bbps_bulk_payment_sound_enabled, default on). The zero-amount warning replaces Pay."
+ },
+ {
+  "id": "sheet-payment-status",
+  "path": "common",
+  "screen_class": "BottomSheetDialog (BBPSBulkRepaymentDetailActivity)",
+  "layout": "bottom_sheet_bulk_bbps_payment_status + item_bbps_payment_success + item_bbps_payment_in_process",
+  "title": "Payment Status",
+  "texts": [
+   "Payment Status",
+   "Payment Success",
+   "<customer name>",
+   "<transaction id>",
+   "₹<amount>",
+   "Amount",
+   "Payment Success",
+   "Payment In Process",
+   "<customer name>",
+   "Due Date: <d>",
+   "Bill Id: <id>",
+   "Bill Period: <p>",
+   "₹<amount>",
+   "Amount"
+  ],
+  "fields": [],
+  "buttons": [
+   "Close"
+  ],
+  "api": [],
+  "next": [
+   {
+    "to": "bulk-repayment-detail",
+    "condition": "close"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "id": "dialog-ccf-slabs",
+  "path": "common",
+  "screen_class": "TransactionCCFSlabDialog",
+  "layout": "(generic CCF slab dialog)",
+  "title": "<CCF slabs>",
+  "texts": [
+   "<slab rows from custconvfees payload>",
+   "No Slabs found"
+  ],
+  "fields": [],
+  "buttons": [
+   "Close"
+  ],
+  "api": [],
+  "next": [
+   {
+    "to": "bulk-repayment-detail",
+    "condition": "close"
+   }
+  ],
+  "notes": "Shared generic dialog; copy not mapped here."
+ },
+ {
+  "id": "dialog-exit-bulk-pay",
+  "path": "common",
+  "screen_class": "AlertDialog (BBPSBulkRepaymentDetailActivity back handler)",
+  "layout": "alert",
+  "title": "",
+  "texts": [
+   "Do you really want to exit?",
+   "You're currently skipping <S> bills from your <N> total, and so far, you've successfully paid <P> bills. Are you sure you want to exit?",
+   "Yes",
+   "No"
+  ],
+  "fields": [],
+  "buttons": [
+   "Yes",
+   "No"
+  ],
+  "api": [],
+  "next": [
+   {
+    "to": "exit flow",
+    "condition": "Yes"
+   }
+  ],
+  "notes": "First variant when nothing is processed yet. S = remaining + already skipped."
+ },
+ {
+  "id": "bulk-payment-summary",
+  "path": "common",
+  "screen_class": "spice.mudra.bbps.bulkPayment.BBPSBulkPaymentSummaryActivity",
+  "layout": "activity_bbps_bulk_payment_summary + item_bbps_transaction_status",
+  "title": "Payment Summary",
+  "texts": [
+   "Payment Summary",
+   "<hh:mma | dd-MMM-yy>",
+   "<biller>",
+   "Operator",
+   "All",
+   "Success",
+   "Failed",
+   "Skipped",
+   "Pending",
+   "Total Transactions: N",
+   "Successful Transactions: N",
+   "Failed Transactions: N",
+   "Skipped Transactions: N",
+   "Pending Transactions: N",
+   "Transaction ID:\n<id>",
+   "Amount",
+   "No Record found",
+   "No transactions available for the selected filter",
+   "New Bill",
+   "View History",
+   "Go Home",
+   "Download All",
+   "Downloading receipts...",
+   "Files downloaded successfully to Downloads folder",
+   "Error occurred while downloading receipts",
+   "Error downloading file: <msg>",
+   "No successful transactions to download receipts for",
+   "Batch ID not available",
+   "Storage permission is required to download files",
+   "No Internet",
+   "No internet connection found. Please check your connection and try again.",
+   "OK",
+   "Confirm Exit",
+   "Are you sure you want to go back?",
+   "Yes"
+  ],
+  "fields": [],
+  "buttons": [
+   "All",
+   "Success",
+   "Failed",
+   "Skipped",
+   "Pending",
+   "<row> (arrow only for SUCCESS)",
+   "New Bill",
+   "View History",
+   "Go Home",
+   "Download All"
+  ],
+  "api": [
+   {
+    "method": "POST",
+    "path": "bbpsservices/bulk/billstatus/1.0/APP/{clientId}",
+    "request_fields": [
+     "batchId",
+     "requestType=PAY",
+     "status=ALL"
+    ],
+    "response_fields_used": [
+     "payload.txnDetails[]{status, transactionId, amount, ...}"
+    ]
+   },
+   {
+    "method": "POST",
+    "path": "bbpsservices/bulk/billreceipt/1.0/APP/{clientId}",
+    "request_fields": [
+     "batchId"
+    ],
+    "response_fields_used": [
+     "zip bytes → Downloads/<batchId>.zip"
+    ]
+   }
+  ],
+  "next": [
+   {
+    "to": "sheet-transaction-details",
+    "condition": "tap row"
+   },
+   {
+    "to": "mobile-entry",
+    "condition": "New Bill (Dashboard with openBBPSMobileEntry=true)"
+   },
+   {
+    "to": "BBPSTransactionsActivity",
+    "condition": "View History"
+   },
+   {
+    "to": "Dashboard",
+    "condition": "Go Home"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "id": "sheet-transaction-details",
+  "path": "common",
+  "screen_class": "spice.mudra.bbps.bulkPayment.dialogs.BBPSTransactionDetailsBottomSheet",
+  "layout": "bottom_sheet_transaction_details",
+  "title": "Transaction Details",
+  "texts": [
+   "Transaction Details",
+   "Loan Repayment",
+   "Loan Number",
+   "B-Connect Txn ID",
+   "Biller ID",
+   "Approval/Biller Reference",
+   "Customer Name",
+   "Customer Mobile Number",
+   "Consumer ID",
+   "Payment Mode",
+   "Payment Channel",
+   "Bill ID",
+   "Bill Date",
+   "Bill Amount",
+   "Customer Convenience Fee including GST",
+   "Biller Platform Fee (Digital Fee)",
+   "Total Amount",
+   "Website URL",
+   "Transaction Date",
+   "GST Number",
+   "Adhikari BBPS ID & Name",
+   "Copied to clipboard"
+  ],
+  "fields": [],
+  "buttons": [
+   "Close",
+   "Copy loan number",
+   "Copy transaction id"
+  ],
+  "api": [],
+  "next": [
+   {
+    "to": "bulk-payment-summary",
+    "condition": "close"
+   }
+  ],
+  "notes": ""
+ },
+ {
+  "id": "history-bulk-details",
+  "path": "common",
+  "screen_class": "spice.mudra.bbps.bulkPayment.BBPSBulkPaymentDetailsActivity",
+  "layout": "activity_bbps_bulk_payment_details + item_bulk_payment_details",
+  "title": "Bulk Payment",
+  "texts": [
+   "Bulk Payment",
+   "Spice Money",
+   "<biller>",
+   "<txn id>",
+   "<time>",
+   "<status>",
+   "Bulk Payment",
+   "₹<amount>",
+   "Reorder",
+   "No Record found",
+   "Batch ID not found",
+   "Invalid batch ID"
+  ],
+  "fields": [],
+  "buttons": [
+   "Back",
+   "Copy txn id",
+   "Receipt icon"
+  ],
+  "api": [
+   {
+    "method": "POST",
+    "path": "bbpsservices/bulk/billstatus/1.0/APP/{clientId}",
+    "request_fields": [
+     "batchId",
+     "requestType",
+     "status"
+    ],
+    "response_fields_used": [
+     "payload.txnDetails[]"
+    ]
+   }
+  ],
+  "next": [
+   {
+    "to": "sheet-transaction-details",
+    "condition": "row tap (🟡)"
+   }
+  ],
+  "notes": "Opened from BBPS History (BBPSTransactionsAdapter) for bulk rows with extra_batch_id / extra_biller_name."
+ }
+]

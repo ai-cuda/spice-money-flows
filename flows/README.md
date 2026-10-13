@@ -15,6 +15,7 @@ The seven priority journeys in Spice Money v6.6.62, traced screen by screen from
 | 07 | [UPI Cash Point](07-upi-cash-withdrawal.md) | Tile `UpiCWFlagnewweb`, deep link `upicashwithdrawal` | 19 | 48 / 11 / 6 |
 | 08 | [Axis savings Re-KYC](08-axis-rekyc.md) | Tile `axis_rekyc` | 13 | storyboard in `storyboards/axis-rekyc.html` |
 | 09 | [Bill payment: Education Fees](09-bbps-education-fees.md) | Recharges and Bills → View More → Education Fees (category 27) | 10 | prototype in `prototypes/bbps-education-fees-prototype.html` |
+| 10 | [Bill payment: Loan Repayment, single and bulk](10-bbps-loan-repayment.md) | Recharges and Bills → Loan Repayment (category 23) | 9 + 30 | prototype in `prototypes/bbps-loan-repayment-prototype.html`, 86 screenshots in `captures/prototype/10-loan-repayment/` |
 
 ## How the app is put together (common to all flows)
 
