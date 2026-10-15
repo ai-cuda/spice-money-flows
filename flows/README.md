@@ -18,6 +18,7 @@ The seven priority journeys in Spice Money v6.6.62, traced screen by screen from
 | 10 | [Bill payment: Loan Repayment, single and bulk](10-bbps-loan-repayment.md) | Recharges and Bills → Loan Repayment (category 23) | 9 + 30 | prototype in `prototypes/bbps-loan-repayment-prototype.html`, 86 screenshots in `captures/prototype/10-loan-repayment/` |
 | 11 | [AePS: NSDL eKYC onboarding (KO and Sub-KO)](11-nsdl-aeps-onboarding.md) | AePS tile when the NSDL eKYC mandate is on; AePS menu → Manage Staff; Account → KYC status | 24 | prototype in `prototypes/aeps-nsdl-onboarding-prototype.html`, 61 screenshots in `captures/prototype/11-nsdl-aeps-onboarding/` |
 | 12 | [Bill payment: Electricity](12-bbps-electricity.md) | Recharges and Bills → Electricity (category 7) | 10 | prototype in `prototypes/bbps-electricity-prototype.html`, 38 screenshots in `captures/prototype/12-electricity/` |
+| 13 | [Dashboard training ticker: today vs time-bound](13-training-ticker.md) | Home dashboard strip under Banking Services (`TrainingSessionNudge`, `ticker/schedulesv2`) | 6 | prototype in `prototypes/training-ticker-prototype.html`, 33 screenshots in `captures/prototype/13-training-ticker/` |
 
 ## How the app is put together (common to all flows)
 
@@ -38,7 +39,8 @@ These are confirmed in code unless marked 🟡. Each one is a hypothesis to vali
 5. **DMT asks for the pattern after the OTP.** The agent's pattern is checked after the customer's OTP is spent, so a failed pattern may leave an authorised transfer that was never sent 🟡. A pending split transfer shows UPI wording.
 6. **First launch:** Hindi devices are switched back to English, the permissions screen doesn't actually request any permissions, there is no PIN check when the app is reopened, and login is blocked when no location fix is available.
 7. **Onboarding:** marketing-link users are sent to the old aob5 dashboard, and eSign and video KYC are not part of signup in this build.
-8. **Dead code:** AePS-funded bill pay, the Academy certification gate, service-based BBPS complaints, old recharge screens and the refund screens.
+8. **The training ticker never re-checks the time.** `schedulesv2` is fetched once per app session and cached; uiState 1/2 strips stay all day and a finished session stays "Live · Join Now". The time-bound proposal needs seconds-based show/hide hints or a periodic re-fetch. *(flow 13)*
+9. **Dead code:** AePS-funded bill pay, the Academy certification gate, service-based BBPS complaints, old recharge screens and the refund screens.
 
 ## Known limits of this pass
 

@@ -1,0 +1,162 @@
+[
+  {
+    "id": "home-ticker",
+    "path": "Dashboard",
+    "screen_class": "DashboardFragmentRevamp + TrainingSessionNudge",
+    "layout": "layout_academy_training_dashboard_v2 (in row_item_dynamic_dashborad_parent_view_new)",
+    "title": "",
+    "texts": [
+      "Recorded Session Dekhein aur Certificate Paen (server greetingMessage, marquee)",
+      "Free Training Lo, Certificate Pao! (layout default)",
+      "Judein Training Session main (fallback title, uiState 3)",
+      "Live",
+      "Join Now"
+    ],
+    "fields": [],
+    "buttons": [
+      "ticker strip"
+    ],
+    "api": [
+      {
+        "method": "GET",
+        "path": "/iibf/trainingSession/ticker/schedulesv2",
+        "request_fields": [],
+        "response_fields_used": [
+          "data.uiState",
+          "data.greetingMessage",
+          "data.title",
+          "data.heading",
+          "data.schedule.id",
+          "data.schedule.title",
+          "data.schedule.timeLeftInSecs",
+          "data.schedule.openType",
+          "data.schedule.link",
+          "data.schedule.popupTitle",
+          "data.schedule.popupSubTitle"
+        ]
+      }
+    ],
+    "next": [
+      {
+        "to": "academy",
+        "condition": "uiState 1 tap"
+      },
+      {
+        "to": "training-mode-dialog",
+        "condition": "uiState 2 tap"
+      },
+      {
+        "to": "join-training-dialog",
+        "condition": "uiState 3 countdown tap, or Live tap with openType != DIRECT"
+      },
+      {
+        "to": "external-link",
+        "condition": "Live tap with openType DIRECT and link"
+      },
+      {
+        "to": "hidden",
+        "condition": "flags not Y, or uiState outside 1-3"
+      }
+    ],
+    "notes": "Fetched once per app session, cached in a static field. No time-of-day logic on the client."
+  },
+  {
+    "id": "training-mode-dialog",
+    "path": "Dashboard > ticker (uiState 2)",
+    "screen_class": "TrainingModeDialog",
+    "layout": "fragment_training_mode_dialog",
+    "title": "Free Training Lo, Certificate Pao!",
+    "texts": [
+      "Select an option to continue",
+      "Join Live Training",
+      "Watch Recorded Training & Get Free Certificate.",
+      "You will be redirected to Spice Money Academy."
+    ],
+    "fields": [],
+    "buttons": [
+      "Book Now",
+      "Go to Academy"
+    ],
+    "api": [
+      {
+        "method": "POST",
+        "path": "/iibf/trainingSession/live-training-interest",
+        "request_fields": [
+          "scheduleId"
+        ],
+        "response_fields_used": [
+          "message"
+        ]
+      }
+    ],
+    "next": [
+      {
+        "to": "academy",
+        "condition": "Go to Academy"
+      }
+    ],
+    "notes": "Title/heading come from data.title / data.heading, with the layout strings as defaults."
+  },
+  {
+    "id": "join-training-dialog",
+    "path": "Dashboard > ticker (uiState 3)",
+    "screen_class": "JoinTrainingDialog",
+    "layout": "fragment_join_training_dialog",
+    "title": "Live Training",
+    "texts": [
+      "Join training at 3pm (popupTitle)",
+      "Training 3 baje shuru hogi. Kripya 3 baje yahan click karein. (popupSubTitle)"
+    ],
+    "fields": [],
+    "buttons": [
+      "Okay"
+    ],
+    "api": [],
+    "next": [
+      {
+        "to": "home-ticker",
+        "condition": "Okay"
+      }
+    ],
+    "notes": "Title gradient #293895 → #E12427."
+  },
+  {
+    "id": "external-link",
+    "path": "Dashboard > ticker Live > Join Now",
+    "screen_class": "Android VIEW intent",
+    "layout": "",
+    "title": "",
+    "texts": [],
+    "fields": [],
+    "buttons": [],
+    "api": [],
+    "next": [],
+    "notes": "link + '?uname=<AGENT_NAME>/<CLIENT_ID>' (or '&uname=' when the link has a query) unless the link contains 'pwd' or 'NA'."
+  },
+  {
+    "id": "academy",
+    "path": "Dashboard > ticker (uiState 1) / Go to Academy",
+    "screen_class": "MyFlutterActivity (screen=Certificate)",
+    "layout": "Flutter",
+    "title": "Spice Money Academy",
+    "texts": [
+      "Become a 100% certified Adhikari",
+      "Training status: 20%",
+      "Finish your pending training in 7 days",
+      "Training & certification",
+      "Training Certificates",
+      "Go to Advance Training",
+      "Download Certificate",
+      "RESUME TRAINING"
+    ],
+    "fields": [],
+    "buttons": [
+      "RESUME TRAINING",
+      "Go to Advance Training",
+      "Download Certificate"
+    ],
+    "api": [],
+    "next": [],
+    "notes": "Not in the base APK; the prototype page is an approximation from the app's own strings. Gated by SM_ACADEMY_ENABLED; otherwise the alert 'This service is not Activated, Please contact Customer Support for further assistance'."
+  }
+]
