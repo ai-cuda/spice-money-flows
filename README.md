@@ -21,4 +21,11 @@ java -jar apktool.jar d -f -s -o out/apktool Spice_Money.apk
 jadx -d out/jadx Spice_Money.apk
 python3 -I scripts/manifest_inventory.py out/apktool inventory
 python3 -I scripts/code_inventory.py out/jadx/sources out/apktool inventory
+python3 -I scripts/retrofit_endpoints.py out/jadx/sources inventory/retrofit.csv
 ```
+
+For another app (Sharingan), pass its package and API host:
+`manifest_inventory.py <apktool> <out> com.example.` and
+`code_inventory.py <jadx_sources> <apktool> <out> com.example example.com`.
+`retrofit_endpoints.py` needs no arguments beyond the paths and also works on
+R8-obfuscated release builds, where `@GET` is renamed (e.g. to `@ai3`).

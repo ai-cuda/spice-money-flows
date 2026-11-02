@@ -1,6 +1,6 @@
 """Phase 1: build a screen/entry-point inventory from a decoded AndroidManifest.xml.
 
-Usage: python3 -I manifest_inventory.py <apktool_out_dir> <out_dir>
+Usage: python3 -I manifest_inventory.py <apktool_out_dir> <out_dir> [app_prefix, e.g. com.paynearby.]
 Writes activities.csv, deeplinks.csv, modules.csv, sdks.csv.
 """
 import collections
@@ -10,7 +10,7 @@ import sys
 import xml.etree.ElementTree as ET
 
 A = "{http://schemas.android.com/apk/res/android}"
-APP_PREFIX = "spice.mudra."
+APP_PREFIX = sys.argv[3] if len(sys.argv) > 3 else "spice.mudra."
 
 src, out = sys.argv[1], sys.argv[2]
 os.makedirs(out, exist_ok=True)

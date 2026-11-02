@@ -1,6 +1,7 @@
 """Phase 1: scan decompiled app code (jadx output) for endpoints and layouts per module.
 
-Usage: python3 -I code_inventory.py <jadx_sources_dir> <apktool_out_dir> <out_dir>
+Usage: python3 -I code_inventory.py <jadx_sources_dir> <apktool_out_dir> <out_dir> [app_package] [api_host]
+(app_package defaults to spice.mudra, api_host to spicemoney.com)
 Writes endpoints.csv, layouts_by_module.csv, flutter_assets.csv and adds module stats to module_stats.csv.
 """
 import collections
@@ -10,9 +11,9 @@ import re
 import sys
 
 jadx_src, apk_dir, out = sys.argv[1], sys.argv[2], sys.argv[3]
-app_root = os.path.join(jadx_src, "spice", "mudra")
+app_root = os.path.join(jadx_src, *(sys.argv[4] if len(sys.argv) > 4 else "spice.mudra").split("."))
 
-FULL_URL = re.compile(r'"(https?://[a-z0-9.-]*spicemoney\.com[^"\s]*)"')
+FULL_URL = re.compile(r"\"(https?://[a-z0-9.-]*" + re.escape(sys.argv[5] if len(sys.argv) > 5 else "spicemoney.com") + r"[^\"\s]*)\"")
 CONCAT = re.compile(r'(\b[A-Za-z_][A-Za-z0-9_.]*(?:\(\))?)\s*\+\s*"([a-zA-Z0-9/_.\-]{3,}(?:\?[a-zA-Z0-9_=&\-]*)?)"')
 RETRO = re.compile(r'@(GET|POST|PUT|DELETE|PATCH)\("([^"]*)"\)')
 LAYOUT = re.compile(r'R\.layout\.([a-zA-Z0-9_]+)')
