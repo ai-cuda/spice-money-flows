@@ -19,6 +19,7 @@ The seven priority journeys in Spice Money v6.6.62, traced screen by screen from
 | 11 | [AePS: NSDL eKYC onboarding (KO and Sub-KO)](11-nsdl-aeps-onboarding.md) | AePS tile when the NSDL eKYC mandate is on; AePS menu → Manage Staff; Account → KYC status | 24 | prototype in `prototypes/aeps-nsdl-onboarding-prototype.html`, 61 screenshots in `captures/prototype/11-nsdl-aeps-onboarding/` |
 | 12 | [Bill payment: Electricity](12-bbps-electricity.md) | Recharges and Bills → Electricity (category 7) | 10 | prototype in `prototypes/bbps-electricity-prototype.html`, 38 screenshots in `captures/prototype/12-electricity/` |
 | 13 | [Dashboard training ticker: today vs time-bound](13-training-ticker.md) | Home dashboard strip under Banking Services (`TrainingSessionNudge`, `ticker/schedulesv2`) | 6 | prototype in `prototypes/training-ticker-prototype.html`, 33 screenshots in `captures/prototype/13-training-ticker/` |
+| 14 | [AePS: selected bank is in outage](14-aeps-bank-outage.md) | AePS → quick-pick bank or View All → bank (flag `apes_oyateg_flag`) | 5 | prototype in `prototypes/aeps-bank-outage-prototype.html`, 16 screenshots in `captures/prototype/14-aeps-bank-outage/` |
 
 ## How the app is put together (common to all flows)
 
